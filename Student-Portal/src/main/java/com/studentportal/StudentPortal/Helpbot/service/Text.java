@@ -30,6 +30,8 @@ public class Text {
     private final String change_photo_or_file = EmojiParser.parseToUnicode("Змінити фото" + ":selfie:");
     private final String take_button = EmojiParser.parseToUnicode("Беру" + ":handshake: ");
     private final String warning = EmojiParser.parseToUnicode("Не можемо опублікувати цей пост, спробуйте ще"+":confused:" );
+    private final String first_performer = EmojiParser.parseToUnicode("Це перша угода ");
+
     public Text() {
 
     }

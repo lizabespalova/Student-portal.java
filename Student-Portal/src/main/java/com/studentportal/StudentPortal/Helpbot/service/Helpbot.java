@@ -27,6 +27,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +50,7 @@ public class Helpbot extends TelegramLongPollingBot {
     private Quiz quiz;
     private long messageID;
     private Text const_text;
+    private String bot_chat_ID;
     private CustomerData customerData = new CustomerData();
     private boolean check_txt_description=false;
     @Override
@@ -175,6 +177,7 @@ public class Helpbot extends TelegramLongPollingBot {
             }
             else if (messagetext.equals("Візьму")){
                 register_to_data_base_performer(update.getCallbackQuery().getFrom());
+                    set_information_about_performer(update.getCallbackQuery().getFrom(), bot_chat_ID);
             }
         }
         if(update.hasMessage()) {
@@ -191,6 +194,7 @@ public class Helpbot extends TelegramLongPollingBot {
             }
         }
         if(message!=null){
+            bot_chat_ID = String.valueOf(message.getChatId());
         String user_sms = message.getText();
         if(user_sms!=null) {
             const_text = new Text();
@@ -200,7 +204,7 @@ public class Helpbot extends TelegramLongPollingBot {
                 end_stop_menu(String.valueOf(message.getChatId()));
                 if (!check_state) {
                     set_post(String.valueOf(message.getChatId()),0,messageID);
-                    set_last_buttons(String.valueOf(String.valueOf(message.getChatId())));
+                    set_last_buttons(String.valueOf(message.getChatId()));
                 } else set_subject_menu(String.valueOf(message.getChatId()));
 //
             } else if (user_sms.equals(const_text.getBack_text())) {
@@ -752,20 +756,37 @@ public class Helpbot extends TelegramLongPollingBot {
         }
     }
     public void register_to_data_base_performer(User user){
-        /*if(customerRepository.findById(user.getId()).isEmpty()) {*/
-        var chatID = user.getId();
-        Performer performer = new Performer();
-        performer.setChatID(chatID);
-        performer.setName(user.getFirstName());
-        performer.setSurname(user.getLastName());
-        performer.setUser_nick(user.getUserName());
-        performerRepository.save(performer);
+        if(performerRepository.findById(user.getId()).isEmpty()) {
+            var chatID = user.getId();
+            Performer performer = new Performer();
+            performer.setChatID(chatID);
+            performer.setName(user.getFirstName());
+            performer.setSurname(user.getLastName());
+            performer.setUser_nick(user.getUserName());
+            performer.setBargain_amount(0);
+            performer.setRating(const_text.getFirst_performer());
+            performerRepository.save(performer);
+        }
 //            customer.setPrice(20);
 //            customer.setPaid(true);
 //            customer.setPerformersAmount(5);
 //            customer.setAgreementsState(true);
 //            customerRepository.save(customer);
-        /* }*/
+    }
+    public void set_information_about_performer(User user, String chatID)  {
+        if(!performerRepository.findById(user.getId()).isEmpty()){
+            CustomerActions customerActions = new CustomerActions(customerData);
+            String post = customerActions.get_customer_post_link_tostr();
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(chatID);
+            sendMessage.setText("Користувач " + performerRepository.findById(user.getId()).get().getName() + " " + performerRepository.findById(user.getId()).get().getSurname() + ", з рейтингом: " + performerRepository.findById(user.getId()).get().getRating() + "та кількістю угод: " + performerRepository.findById(user.getId()).get().getBargain_amount() + ", готовий/а взятися за ваше завдання" + "\n" + post);
+            try {
+                // Send the message
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
    /* public void set_last_menu(String chatId){

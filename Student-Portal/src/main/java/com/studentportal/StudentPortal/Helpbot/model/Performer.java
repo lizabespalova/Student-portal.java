@@ -17,6 +17,6 @@ public class Performer {
     @Column(name = "rating")
     private String rating;
     @Column(name = "bargain_amount") //Кількість угод
-    private String bargain_amount;
+    private int bargain_amount;
 }
 

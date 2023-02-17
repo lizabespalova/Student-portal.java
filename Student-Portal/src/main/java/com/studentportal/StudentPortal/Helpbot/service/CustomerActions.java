@@ -61,6 +61,15 @@ public class CustomerActions {
             sb.append("</a>");
         return sb;
     }
+    public StringBuilder get_customer_post_link(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Посилання на завдання:");
+        sb.append(customerData.getPost_url());
+        return sb;
+    }
+    public String get_customer_post_link_tostr(){
+            return get_customer_post_link().toString();
+    }
 }
 //        if(photo_url!=null){
 //            SendMessage sendMessage = new SendMessage();
