@@ -12,7 +12,11 @@ public enum Subjects {
     ANOTHER,
     CHANGE,
     PUBLIC,
-    TAKE;
+    TAKE,
+    AGREE,
+    CANCEL,
+    LINK,
+    PERFORMER_REGISTER;
 //   private String math;
 //   private String languages;
 //   private String phylosophy;

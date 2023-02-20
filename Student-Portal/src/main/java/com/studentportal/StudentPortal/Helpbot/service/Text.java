@@ -9,6 +9,7 @@ public class Text {
     private final String end_text =  EmojiParser.parseToUnicode("Відмінити"+":x:");
     private final String ready_text =  EmojiParser.parseToUnicode("Готово"+":+1:");
     private final String agreement_text =  EmojiParser.parseToUnicode("Зробити оголошення"+":woman_student:");
+    private final String performer_register = EmojiParser.parseToUnicode("Зареєструватися, як виконавець"+":woman_office_worker:");
     private final String matem_text =   EmojiParser.parseToUnicode("Математика" + ":1234:");
     private final String programming_text=EmojiParser.parseToUnicode("Програмування" + ":computer:");
     private final String medicine_text=EmojiParser.parseToUnicode("Медицина" + ":woman_health_worker:");
@@ -31,7 +32,9 @@ public class Text {
     private final String take_button = EmojiParser.parseToUnicode("Беру" + ":handshake: ");
     private final String warning = EmojiParser.parseToUnicode("Не можемо опублікувати цей пост, спробуйте ще"+":confused:" );
     private final String first_performer = EmojiParser.parseToUnicode("Це перша угода ");
-
+    private final String agree_text = EmojiParser.parseToUnicode("Спілкуватися"+":handshake:");
+    private final String cancel_text = EmojiParser.parseToUnicode("Скасувати"+":x:");
+    private final String want_registrate = EmojiParser.parseToUnicode("Хочу зареєструватися"+":smiley_cat:");
     public Text() {
 
     }

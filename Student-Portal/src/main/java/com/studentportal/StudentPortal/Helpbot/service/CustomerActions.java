@@ -63,7 +63,7 @@ public class CustomerActions {
     }
     public StringBuilder get_customer_post_link(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Посилання на завдання:");
+        sb.append("Посилання на завдання:\n");
         sb.append(customerData.getPost_url());
         return sb;
     }

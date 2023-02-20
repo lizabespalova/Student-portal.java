@@ -9,9 +9,11 @@ import com.vdurmont.emoji.EmojiParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -40,6 +42,7 @@ public class Helpbot extends TelegramLongPollingBot {
     @Autowired
     private PerformerRepository performerRepository;
     private boolean check_state = true;
+    private String performer_id;
     private Chanels chanel;
     final HelpbotConfig config;
     private String text;
@@ -172,12 +175,22 @@ public class Helpbot extends TelegramLongPollingBot {
                        throw new RuntimeException(e);
                    }
                }
+
                set_post(String.valueOf(chatID),1,messageID);
                 set_main_menu(String.valueOf(chatID));
             }
             else if (messagetext.equals("Візьму")){
-                register_to_data_base_performer(update.getCallbackQuery().getFrom());
+               performer_check(update.getCallbackQuery().getFrom(),update.getCallbackQuery().getId());
                     set_information_about_performer(update.getCallbackQuery().getFrom(), bot_chat_ID);
+            }
+            else if (messagetext.equals(subjects.CANCEL.toString())){
+               bargain_cancel(chatID);
+            }
+            else if (messagetext.equals(subjects.AGREE.toString())){
+                return_chat_link_and_show_sms_in_group(chatID);
+                return_chat_link_and_show_sms_for_performer_in_group();
+            } else if (messagetext.equals(subjects.PERFORMER_REGISTER.toString())) {
+                register_to_data_base_performer(update.getCallbackQuery().getFrom(), String.valueOf(chatID));
             }
         }
         if(update.hasMessage()) {
@@ -269,6 +282,8 @@ public class Helpbot extends TelegramLongPollingBot {
                     set_last_buttons(String.valueOf(message.getChatId()));
                 }else {set_fix_price_menu(String.valueOf(message.getChatId()));}
                 check_state = false;
+            } else if (user_sms.equals(const_text.getPerformer_register())) {
+                set_button_register_performer(String.valueOf(message.getChatId()));
             }
         }
             switch (user_sms) {
@@ -280,7 +295,6 @@ public class Helpbot extends TelegramLongPollingBot {
                 }
         }
     }
-
     public void set_main_menu(String chatId){
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
@@ -296,8 +310,12 @@ public class Helpbot extends TelegramLongPollingBot {
         row1.add(text);
         text = EmojiParser.parseToUnicode("Активні виконавці"+":+1:");
         row1.add(text);
+        KeyboardRow row2 = new KeyboardRow();
+        text = EmojiParser.parseToUnicode("Зареєструватися, як виконавець"+":woman_office_worker:");
+        row2.add(text);
         menu.add(row);
         menu.add(row1);
+        menu.add(row2);
         keyboard.setKeyboard(menu);
         keyboard.setResizeKeyboard(true);
         keyboard.setOneTimeKeyboard(false);
@@ -755,7 +773,110 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    public void register_to_data_base_performer(User user){
+    public void performer_check(User user, String chatID){
+        if(performerRepository.findById(user.getId()).isEmpty()) {
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setCallbackQueryId(chatID);
+            answerCallbackQuery.setText("Ви не зареєстровані, як виконавець. Зареєструйтеся спочатку у боті");
+            answerCallbackQuery.setShowAlert(true);
+
+            try {
+                // Send the message
+                execute(answerCallbackQuery);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }else{
+            AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+            answerCallbackQuery.setCallbackQueryId(chatID);
+            answerCallbackQuery.setText("Ваша заявка була відправлена користувачу на розгляд");
+            answerCallbackQuery.setShowAlert(true);
+
+            try {
+                // Send the message
+                execute(answerCallbackQuery);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+//            customer.setPrice(20);
+//            customer.setPaid(true);
+//            customer.setPerformersAmount(5);
+//            customer.setAgreementsState(true);
+//            customerRepository.save(customer);
+    }
+    public void set_information_about_performer(User user, String chatID)  {
+        if(!performerRepository.findById(user.getId()).isEmpty()){
+            performer_id = String.valueOf(user.getId());
+            CustomerActions customerActions = new CustomerActions(customerData);
+            String post = customerActions.get_customer_post_link_tostr();
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(chatID);
+            sendMessage.setText("Користувач " + performerRepository.findById(user.getId()).get().getName() + " " + performerRepository.findById(user.getId()).get().getSurname() + ", з рейтингом: " + performerRepository.findById(user.getId()).get().getRating() + "та кількістю угод: " + performerRepository.findById(user.getId()).get().getBargain_amount() + ", готовий/а взятися за ваше завдання" + "\n" + post);
+            InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+
+
+
+            List<InlineKeyboardButton> row_inline=new ArrayList<>();
+            var agree_Button = new InlineKeyboardButton();
+            agree_Button.setText(const_text.getAgree_text());
+            agree_Button.setCallbackData(subjects.AGREE.toString());
+            var cancel_Button = new InlineKeyboardButton();
+            cancel_Button.setText(const_text.getCancel_text());
+            cancel_Button.setCallbackData(subjects.CANCEL.toString());
+            row_inline.add(agree_Button);
+            row_inline.add(cancel_Button);
+            rows_inline.add(row_inline);
+            inline_keybord.setKeyboard(rows_inline);
+            sendMessage.setReplyMarkup(inline_keybord);
+            try {
+                // Send the message
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void bargain_cancel(long chatID) {
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(chatID);
+        editMessageText.setMessageId((int) messageID);
+        editMessageText.setText("Спілку обірвано");
+        check_state = true;
+        try {
+            // Send the message
+            execute(editMessageText);
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+    public void  return_chat_link_and_show_sms_in_group(long chatID){
+        EditMessageText editMessageText = new EditMessageText();
+        editMessageText.setChatId(chatID);
+        editMessageText.setMessageId((int) messageID);
+        editMessageText.setText("Посилання на чат з виконавцем");
+        InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+        List<InlineKeyboardButton> row_inline=new ArrayList<>();
+        var link_Button = new InlineKeyboardButton();
+        link_Button.setText("Перейти в чат");
+        link_Button.setUrl("https://t.me/+g7sZc_AwchMyNDZi");
+        link_Button.setCallbackData(subjects.LINK.toString());
+        row_inline.add(link_Button);
+        rows_inline.add(row_inline);
+        inline_keybord.setKeyboard(rows_inline);
+        editMessageText.setReplyMarkup(inline_keybord);
+        try {
+            // Send the message
+            execute(editMessageText);
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+    public void register_to_data_base_performer(User user, String chatid){
         if(performerRepository.findById(user.getId()).isEmpty()) {
             var chatID = user.getId();
             Performer performer = new Performer();
@@ -766,20 +887,19 @@ public class Helpbot extends TelegramLongPollingBot {
             performer.setBargain_amount(0);
             performer.setRating(const_text.getFirst_performer());
             performerRepository.save(performer);
-        }
-//            customer.setPrice(20);
-//            customer.setPaid(true);
-//            customer.setPerformersAmount(5);
-//            customer.setAgreementsState(true);
-//            customerRepository.save(customer);
-    }
-    public void set_information_about_performer(User user, String chatID)  {
-        if(!performerRepository.findById(user.getId()).isEmpty()){
-            CustomerActions customerActions = new CustomerActions(customerData);
-            String post = customerActions.get_customer_post_link_tostr();
             SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(chatID);
-            sendMessage.setText("Користувач " + performerRepository.findById(user.getId()).get().getName() + " " + performerRepository.findById(user.getId()).get().getSurname() + ", з рейтингом: " + performerRepository.findById(user.getId()).get().getRating() + "та кількістю угод: " + performerRepository.findById(user.getId()).get().getBargain_amount() + ", готовий/а взятися за ваше завдання" + "\n" + post);
+            sendMessage.setChatId(chatid);
+            sendMessage.setText("Вас було зареєйстровано як виконавець та видано рейтинг. Поки що він порожній");
+            try {
+                // Send the message
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }else{
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(chatid);
+            sendMessage.setText("Ви вже зареєстровані, як виконавець");
             try {
                 // Send the message
                 execute(sendMessage);
@@ -788,6 +908,53 @@ public class Helpbot extends TelegramLongPollingBot {
             }
         }
     }
+    public void set_button_register_performer(String ChatId){
+        SendMessage main_menu_sms = new SendMessage();
+        main_menu_sms.setChatId(ChatId);
+        main_menu_sms.setText("Щоб зареєструватися, натисніть на кнопку \"Хочу зареєструватися\":");
+        InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+
+
+
+        List<InlineKeyboardButton> row_inline=new ArrayList<>();
+        var registrate_Button = new InlineKeyboardButton();
+        registrate_Button.setText(const_text.getWant_registrate());
+        registrate_Button.setCallbackData(subjects.PERFORMER_REGISTER.toString());
+        row_inline.add(registrate_Button);
+        rows_inline.add(row_inline);
+        inline_keybord.setKeyboard(rows_inline);
+        main_menu_sms.setReplyMarkup(inline_keybord);
+        try{
+            execute(main_menu_sms);
+        }catch(TelegramApiException e){
+            e.printStackTrace();
+        }
+    }
+    public void return_chat_link_and_show_sms_for_performer_in_group(){
+       SendMessage sendMessage = new SendMessage();
+       sendMessage.setChatId(performer_id);
+       sendMessage.setText("Посилання на чат з користувачем");
+        InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+        List<InlineKeyboardButton> row_inline=new ArrayList<>();
+        var link_Button = new InlineKeyboardButton();
+        link_Button.setText("Перейти в чат");
+        link_Button.setUrl("https://t.me/+g7sZc_AwchMyNDZi");
+        link_Button.setCallbackData(subjects.LINK.toString());
+        row_inline.add(link_Button);
+        rows_inline.add(row_inline);
+        inline_keybord.setKeyboard(rows_inline);
+        sendMessage.setReplyMarkup(inline_keybord);
+        try {
+            // Send the message
+            execute(sendMessage);
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
    /* public void set_last_menu(String chatId){
         SendMessage main_menu_sms = new SendMessage();
