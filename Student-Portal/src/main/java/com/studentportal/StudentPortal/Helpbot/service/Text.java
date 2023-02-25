@@ -35,6 +35,8 @@ public class Text {
     private final String agree_text = EmojiParser.parseToUnicode("Спілкуватися"+":handshake:");
     private final String cancel_text = EmojiParser.parseToUnicode("Скасувати"+":x:");
     private final String want_registrate = EmojiParser.parseToUnicode("Хочу зареєструватися"+":smiley_cat:");
+    private final String go_chat = EmojiParser.parseToUnicode("Перейти в чат"+":eye:");
+    private final String chat_text = EmojiParser.parseToUnicode("Вкажіть, будь ласка, ціну. У випадку закінчення угоди, натисніть будь ласка на кнопку \"Кінець угоди\" та пройдіть опитування. Якщо ви помітили співрозмовника у шахрайстві, зверніться до адміністрації, робіть це тайно. Успіхів!)");
     public Text() {
 
     }

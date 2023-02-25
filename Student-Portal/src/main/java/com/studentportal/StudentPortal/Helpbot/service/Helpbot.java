@@ -27,6 +27,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -41,6 +42,7 @@ public class Helpbot extends TelegramLongPollingBot {
     private CustomerRepository customerRepository;
     @Autowired
     private PerformerRepository performerRepository;
+    private boolean flag = false;
     private boolean check_state = true;
     private String performer_id;
     private Chanels chanel;
@@ -54,6 +56,9 @@ public class Helpbot extends TelegramLongPollingBot {
     private long messageID;
     private Text const_text;
     private String bot_chat_ID;
+    private long customers_id;
+    private String price;
+    private long performers_id;
     private CustomerData customerData = new CustomerData();
     private boolean check_txt_description=false;
     @Override
@@ -99,14 +104,16 @@ public class Helpbot extends TelegramLongPollingBot {
                 customerData.setSubject(strsubject);
                 if(!check_state){set_post(String.valueOf(chatID),0,messageID); set_last_buttons(String.valueOf(chatID));}
                 else set_text_description(chatID);
-            } else if (messagetext.equals(quiz.FIXPRICE.toString()) && quiz==quiz.FILEDESCRIPTION) {
+            }
+            else if (messagetext.equals(quiz.FIXPRICE.toString()) && quiz==quiz.FILEDESCRIPTION) {
                 set_fix_price_menu(String.valueOf(chatID));
             }
             else if (messagetext.equals(quiz.AGREEMENTPRICE.toString()) && quiz==quiz.FILEDESCRIPTION) {
                 set_agreement_price_menu(String.valueOf(chatID));
                 set_post(String.valueOf(chatID),0,messageID);
                 set_last_buttons(String.valueOf(chatID));
-            } else if (messagetext.equals(subjects.CHANGE.toString())) {
+            }
+            else if (messagetext.equals(subjects.CHANGE.toString())) {
                 set_change_menu(String.valueOf(chatID));
             }
             else if (messagetext.equals(subjects.PUBLIC.toString())) {
@@ -130,21 +137,24 @@ public class Helpbot extends TelegramLongPollingBot {
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
-               }else if(check_subj.equals(subjects.CHEMISTRY.toString())){
+               }
+               else if(check_subj.equals(subjects.CHEMISTRY.toString())){
                    try {
                        String post_url = chanel.set_to_chemistry_chanal(customerData, getBotToken());
                        customerData.setPost_url(post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
-               }else if(check_subj.equals(subjects.MEDICINE.toString())){
+               }
+               else if(check_subj.equals(subjects.MEDICINE.toString())){
                    try {
                        String post_url = chanel.set_to_medic_chanal(customerData, getBotToken());
                        customerData.setPost_url(post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
-               }else if(check_subj.equals(subjects.GEOGRAPHY.toString())){
+               }
+               else if(check_subj.equals(subjects.GEOGRAPHY.toString())){
                    try {
                        String post_url=chanel.set_to_geography_chanal(customerData, getBotToken());
                        customerData.setPost_url(post_url);
@@ -167,7 +177,8 @@ public class Helpbot extends TelegramLongPollingBot {
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
-               }else if(check_subj.equals(subjects.ANOTHER.toString())){
+               }
+               else if(check_subj.equals(subjects.ANOTHER.toString())){
                    try {
                        String post_url= chanel.set_to_main_chanal(customerData, getBotToken());
                        customerData.setPost_url(post_url);
@@ -189,8 +200,32 @@ public class Helpbot extends TelegramLongPollingBot {
             else if (messagetext.equals(subjects.AGREE.toString())){
                 return_chat_link_and_show_sms_in_group(chatID);
                 return_chat_link_and_show_sms_for_performer_in_group();
-            } else if (messagetext.equals(subjects.PERFORMER_REGISTER.toString())) {
+                try {
+                    set_sms_in_chat();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else if (messagetext.equals(subjects.PERFORMER_REGISTER.toString())) {
                 register_to_data_base_performer(update.getCallbackQuery().getFrom(), String.valueOf(chatID));
+            }
+            else if (messagetext.equals("PRICE")) {
+                try {
+                    fix_finish_text_price_customer();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else if (messagetext.equals("CLOSE")) {
+            }
+            else if (messagetext.equals("YES")) {
+            }
+            else if (messagetext.equals("NO")) {
+                try {
+                    check_performer_return_no(update.getCallbackQuery().getFrom().getId(),price);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         if(update.hasMessage()) {
@@ -209,6 +244,7 @@ public class Helpbot extends TelegramLongPollingBot {
         if(message!=null){
             bot_chat_ID = String.valueOf(message.getChatId());
         String user_sms = message.getText();
+
         if(user_sms!=null) {
             const_text = new Text();
             if (user_sms.equals(const_text.getAgreement_text())) {
@@ -253,8 +289,10 @@ public class Helpbot extends TelegramLongPollingBot {
                     if (url_file != null) set_file_to_channel_and_return_link();
                     if (url_photo == null) customerData.setPhoto_url(null);
                     if (url_file == null) customerData.setFile_url(null);
-                    url_photo = null;
-                    url_file = null;
+                    /*url_photo = null;
+                    url_file = null;*/
+                    url_photo = new ArrayList();
+                    url_file = new ArrayList();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -280,10 +318,21 @@ public class Helpbot extends TelegramLongPollingBot {
                 if(check_price) {
                     set_post(String.valueOf(message.getChatId()), 0, messageID);
                     set_last_buttons(String.valueOf(message.getChatId()));
-                }else {set_fix_price_menu(String.valueOf(message.getChatId()));}
+                }
+                else {set_fix_price_menu(String.valueOf(message.getChatId()));}
                 check_state = false;
-            } else if (user_sms.equals(const_text.getPerformer_register())) {
+            }
+            else if (user_sms.equals(const_text.getPerformer_register())) {
                 set_button_register_performer(String.valueOf(message.getChatId()));
+            }
+            else if (flag) {
+               flag=false;
+                try {
+                    check_customers_price(user_sms, message);
+                    price=user_sms;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
             switch (user_sms) {
@@ -746,7 +795,6 @@ public class Helpbot extends TelegramLongPollingBot {
         }
     }
     public void register_to_data_base_customer(Message message){
-        /*if(customerRepository.findById(message.getChatId()).isEmpty()) {*/
             var chatID = message.getChatId();
             var chat = message.getChat();
             Customer customer = new Customer();
@@ -755,12 +803,7 @@ public class Helpbot extends TelegramLongPollingBot {
             customer.setSurname(chat.getLastName());
             customer.setUser_nick(chat.getUserName());
             customerRepository.save(customer);
-//            customer.setPrice(20);
-//            customer.setPaid(true);
-//            customer.setPerformersAmount(5);
-//            customer.setAgreementsState(true);
-//            customerRepository.save(customer);
-       /* }*/
+           customers_id = chatID;
       }
     public void set_warning(String chatId){
         SendMessage sendMessage = new SendMessage();
@@ -791,7 +834,7 @@ public class Helpbot extends TelegramLongPollingBot {
             answerCallbackQuery.setCallbackQueryId(chatID);
             answerCallbackQuery.setText("Ваша заявка була відправлена користувачу на розгляд");
             answerCallbackQuery.setShowAlert(true);
-
+            performers_id = user.getId();
             try {
                 // Send the message
                 execute(answerCallbackQuery);
@@ -861,7 +904,7 @@ public class Helpbot extends TelegramLongPollingBot {
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
         List<InlineKeyboardButton> row_inline=new ArrayList<>();
         var link_Button = new InlineKeyboardButton();
-        link_Button.setText("Перейти в чат");
+        link_Button.setText(const_text.getGo_chat());
         link_Button.setUrl("https://t.me/+g7sZc_AwchMyNDZi");
         link_Button.setCallbackData(subjects.LINK.toString());
         row_inline.add(link_Button);
@@ -887,6 +930,7 @@ public class Helpbot extends TelegramLongPollingBot {
             performer.setBargain_amount(0);
             performer.setRating(const_text.getFirst_performer());
             performerRepository.save(performer);
+            /*performers_id = chatID;*/
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(chatid);
             sendMessage.setText("Вас було зареєйстровано як виконавець та видано рейтинг. Поки що він порожній");
@@ -932,14 +976,16 @@ public class Helpbot extends TelegramLongPollingBot {
         }
     }
     public void return_chat_link_and_show_sms_for_performer_in_group(){
+       CustomerActions customerActions = new CustomerActions(customerData);
        SendMessage sendMessage = new SendMessage();
        sendMessage.setChatId(performer_id);
-       sendMessage.setText("Посилання на чат з користувачем");
+       sendMessage.setParseMode("HTML");
+       sendMessage.setText("Посилання на чат з користувачем\n"+ customerActions.get_customer_post_link_tostr());
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
         List<InlineKeyboardButton> row_inline=new ArrayList<>();
         var link_Button = new InlineKeyboardButton();
-        link_Button.setText("Перейти в чат");
+        link_Button.setText(const_text.getGo_chat());
         link_Button.setUrl("https://t.me/+g7sZc_AwchMyNDZi");
         link_Button.setCallbackData(subjects.LINK.toString());
         row_inline.add(link_Button);
@@ -954,6 +1000,138 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+    public void set_sms_in_chat() throws IOException {
+        CustomerActions customerActions=new CustomerActions(customerData);
+        String post = customerActions.set_in_group_info_tostr();
+        String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&reply_markup=%s&parse_mode=%s&text=%s";
+        String chatId = "-811918442";
+        String reply = URLEncoder.encode("{\"inline_keyboard\":[[{\"text\":\""+ "Вказати ціну"+"\",\"callback_data\":\"PRICE\"},{\"text\":\""+ "Закінчити угоду"+"\",\"callback_data\":\"CLOSE\"}]]}","UTF-8");
+        String parse = "HTML";
+        post = URLEncoder.encode(post,"UTF-8");
+        urlString = String.format(urlString, getBotToken(), chatId, reply, parse, post);
+        URL newurl = new URL(urlString);
+        URLConnection conn = newurl.openConnection();
+        StringBuilder sb = new StringBuilder();
+        InputStream is = new BufferedInputStream(conn.getInputStream());
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String inputLine = "";
+        while ((inputLine = br.readLine()) != null) {
+            sb.append(inputLine);
+        }
+    }
+    public void fix_finish_text_price_customer() throws IOException {
+        flag = true;
+        String post = "Користувач, напишіть ціну цифрою, без копійок";
+        String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
+        String chatId = "-811918442";
+        post = URLEncoder.encode(post,"UTF-8");
+        urlString = String.format(urlString, getBotToken(), chatId, post);
+        URL newurl = new URL(urlString);
+        URLConnection conn = newurl.openConnection();
+        StringBuilder sb = new StringBuilder();
+        InputStream is = new BufferedInputStream(conn.getInputStream());
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String inputLine = "";
+        while ((inputLine = br.readLine()) != null) {
+            sb.append(inputLine);
+        }
+    }
+    public boolean check_customers_price(String user_price, Message message) throws IOException {
+        if(customers_id != message.getFrom().getId()){
+            String post = ("Ми просимо відправити смс саме користувача (людині, яка робила пост в канал)");
+            String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
+            String chatId = "-811918442";
+            post = URLEncoder.encode(post, "UTF-8");
+            urlString = String.format(urlString, getBotToken(), chatId, post);
+            URL newurl = new URL(urlString);
+            URLConnection conn = newurl.openConnection();
+            StringBuilder sb = new StringBuilder();
+            InputStream is = new BufferedInputStream(conn.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String inputLine = "";
+            while ((inputLine = br.readLine()) != null) {
+                sb.append(inputLine);
+            }
+            fix_finish_text_price_customer();
+            return false;
+        }
+        else {
+            try {
+                sms_to_performer(user_price);
+            } catch (NumberFormatException nfe) {
+                String post = ("Ви відправили не число");
+                String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
+                String chatId = "-811918442";
+                post = URLEncoder.encode(post, "UTF-8");
+                urlString = String.format(urlString, getBotToken(), chatId, post);
+                URL newurl = new URL(urlString);
+                URLConnection conn = newurl.openConnection();
+                StringBuilder sb = new StringBuilder();
+                InputStream is = new BufferedInputStream(conn.getInputStream());
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String inputLine = "";
+                while ((inputLine = br.readLine()) != null) {
+                    sb.append(inputLine);
+                }
+            }
+        }
+        return true;
+    }
+    public void sms_to_performer(String user_price) throws IOException {
+        int check_num = Integer.parseInt(user_price);
+        String post = ("Ціну зафіксовано, вона дорівнює: " + check_num + " грн, виконавець, ви згодні з цією ціною?");
+        String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&reply_markup=%s&text=%s";
+        String chatId = "-811918442";
+        String reply = URLEncoder.encode("{\"inline_keyboard\":[[{\"text\":\"" + "Так" + "\",\"callback_data\":\"YES\"},{\"text\":\"" + "Ні" + "\",\"callback_data\":\"NO\"}]]}", "UTF-8");
+        post = URLEncoder.encode(post, "UTF-8");
+        urlString = String.format(urlString, getBotToken(), chatId, reply, post);
+        URL newurl = new URL(urlString);
+        URLConnection conn = newurl.openConnection();
+        StringBuilder sb = new StringBuilder();
+        InputStream is = new BufferedInputStream(conn.getInputStream());
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String inputLine = "";
+        while ((inputLine = br.readLine()) != null) {
+            sb.append(inputLine);
+        }
+    }
+    public void check_performer_return_no(Long message, String user_price)throws IOException{
+        if(performers_id != message){
+            String post = ("Ми просимо відповісти саме виконавця (людині, яка буде виконувати завдання)");
+            String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
+            String chatId = "-811918442";
+            post = URLEncoder.encode(post, "UTF-8");
+            urlString = String.format(urlString, getBotToken(), chatId, post);
+            URL newurl = new URL(urlString);
+            URLConnection conn = newurl.openConnection();
+            StringBuilder sb = new StringBuilder();
+            InputStream is = new BufferedInputStream(conn.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String inputLine = "";
+            while ((inputLine = br.readLine()) != null) {
+                sb.append(inputLine);
+            }
+            sms_to_performer(user_price);
+        }
+        else{
+            String post = ("Виконавець не згідний за ціною, спробуйте домовитися ще");
+            String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
+            String chatId = "-811918442";
+            post = URLEncoder.encode(post, "UTF-8");
+            urlString = String.format(urlString, getBotToken(), chatId, post);
+            URL newurl = new URL(urlString);
+            URLConnection conn = newurl.openConnection();
+            StringBuilder sb = new StringBuilder();
+            InputStream is = new BufferedInputStream(conn.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String inputLine = "";
+            while ((inputLine = br.readLine()) != null) {
+                sb.append(inputLine);
+            }
+
+        }
+    }
+    public void close_bargain(){}
 
 }
    /* public void set_last_menu(String chatId){

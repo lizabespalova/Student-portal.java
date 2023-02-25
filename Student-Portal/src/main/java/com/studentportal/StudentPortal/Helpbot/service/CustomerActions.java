@@ -70,6 +70,23 @@ public class CustomerActions {
     public String get_customer_post_link_tostr(){
             return get_customer_post_link().toString();
     }
+    public StringBuilder set_in_group_info(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(  customerData.getText().getChat_text());
+        sb.append("\n\n\n");
+        sb.append("Адміністрація:");
+        sb.append("\n");
+                sb.append("<a href= \"");
+                sb.append("@lizabespalova");
+                sb.append("\">");
+                sb.append("@lizabespalova\n");
+                sb.append("</a>");
+        return sb;
+    }
+    public String set_in_group_info_tostr(){
+        return set_in_group_info().toString();
+    }
+
 }
 //        if(photo_url!=null){
 //            SendMessage sendMessage = new SendMessage();
