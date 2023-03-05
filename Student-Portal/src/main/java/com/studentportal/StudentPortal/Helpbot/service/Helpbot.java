@@ -1,10 +1,7 @@
 package com.studentportal.StudentPortal.Helpbot.service;
 
 import com.studentportal.StudentPortal.Helpbot.config.HelpbotConfig;
-import com.studentportal.StudentPortal.Helpbot.model.Customer;
-import com.studentportal.StudentPortal.Helpbot.model.CustomerRepository;
-import com.studentportal.StudentPortal.Helpbot.model.Performer;
-import com.studentportal.StudentPortal.Helpbot.model.PerformerRepository;
+import com.studentportal.StudentPortal.Helpbot.model.*;
 import com.vdurmont.emoji.EmojiParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,7 +10,6 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -42,25 +38,20 @@ public class Helpbot extends TelegramLongPollingBot {
     private CustomerRepository customerRepository;
     @Autowired
     private PerformerRepository performerRepository;
-    private boolean flag = false;
+    @Autowired
+    private PostRepository postRepository;
     private boolean check_state = true;
     private String performer_id;
     private Chanels chanel;
+    private Text const_text;
     final HelpbotConfig config;
     private String text;
-    private List url_photo;
-    private List url_file;
     private Subjects subjects;
-    private String check_subj;
     private Quiz quiz;
-    private long messageID;
-    private Text const_text;
-    private String bot_chat_ID;
     private long customers_id;
     private String price;
     private long performers_id;
-    private CustomerData customerData = new CustomerData();
-    private boolean check_txt_description=false;
+
     @Override
     public String getBotUsername() {
         return config.getUsername();
@@ -91,115 +82,147 @@ public class Helpbot extends TelegramLongPollingBot {
         Message message = update.getMessage();
         const_text= new Text();
         if (update.hasCallbackQuery()) {
+          /*  Quiz quiz = null ;*/
             long chatID = update.getCallbackQuery().getMessage().getChatId();
             String messagetext = update.getCallbackQuery().getData();
+/*
             messageID = update.getCallbackQuery().getMessage().getMessageId();
+*/
             if(messagetext.equals(subjects.MATH.toString())||messagetext.equals(subjects.PROGRAMMING.toString())||
                     messagetext.equals(subjects.PHYLOSOPHY.toString())||messagetext.equals(subjects.GEOGRAPHY.toString())||
                     messagetext.equals(subjects.LANGUAGES.toString())||messagetext.equals(subjects.ANOTHER.toString())||
                     messagetext.equals(subjects.CHEMISTRY.toString())|| messagetext.equals(subjects.MEDICINE.toString())){
-                check_subj=messagetext;
                 Subjectgetters subjectgetters = new Subjectgetters();
                 String strsubject = subjectgetters.getsubject(messagetext);
-                customerData.setSubject(strsubject);
-                if(!check_state){set_post(String.valueOf(chatID),0,messageID); set_last_buttons(String.valueOf(chatID));}
-                else set_text_description(chatID);
+                register_to_data_base_customer(update.getCallbackQuery().getMessage());
+
+                setBranchToTable(update.getCallbackQuery().getMessage(),strsubject);
+                if(!check_state){set_post(String.valueOf(chatID),0,update.getCallbackQuery().getMessage().getMessageId(),update.getCallbackQuery().getMessage()); set_last_buttons(String.valueOf(chatID));}
+                else set_text_description(chatID, update.getCallbackQuery().getMessage());
             }
-            else if (messagetext.equals(quiz.FIXPRICE.toString()) && quiz==quiz.FILEDESCRIPTION) {
-                set_fix_price_menu(String.valueOf(chatID));
+            else if (messagetext.equals(quiz.FIXPRICE.toString()) && customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getState().equals(quiz.FILEDESCRIPTION.toString())) {
+                set_fix_price_menu(String.valueOf(chatID),update.getCallbackQuery().getMessage());
             }
-            else if (messagetext.equals(quiz.AGREEMENTPRICE.toString()) && quiz==quiz.FILEDESCRIPTION) {
-                set_agreement_price_menu(String.valueOf(chatID));
-                set_post(String.valueOf(chatID),0,messageID);
+            else if (messagetext.equals(quiz.AGREEMENTPRICE.toString()) && customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getState().equals(quiz.FILEDESCRIPTION.toString())) {
+                set_agreement_price_menu(String.valueOf(chatID), update.getCallbackQuery().getMessage());
+                set_post(String.valueOf(chatID),0,update.getCallbackQuery().getMessage().getMessageId(), update.getCallbackQuery().getMessage());
                 set_last_buttons(String.valueOf(chatID));
             }
             else if (messagetext.equals(subjects.CHANGE.toString())) {
                 set_change_menu(String.valueOf(chatID));
             }
             else if (messagetext.equals(subjects.PUBLIC.toString())) {
+/*
                 register_to_data_base_customer(update.getCallbackQuery().getMessage());
+*/
                 chanel = new Chanels();
-               if (check_subj==null){
+               if (customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch()==null){
                   set_warning(String.valueOf(chatID));
                 }
-               else if(check_subj.equals(subjects.MATH.toString())){
+               else if(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch().equals(const_text.getMatem_text())){
                     try {
-                       String post_url = chanel.set_to_matem_chanal(customerData, getBotToken());
-                       customerData.setPost_url(post_url);
+                        String post_url = chanel.set_to_matem_chanal(customerRepository, getBotToken(), update.getCallbackQuery().getMessage(), postRepository);
+
+                        setPostLinkToTable(update,post_url);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                }
-               else if(check_subj.equals(subjects.PROGRAMMING.toString())){
+               else if(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch().equals(const_text.getProgramming_text())){
                    try {
-                       String post_url =  chanel.set_to_programm_chanal(customerData, getBotToken());
-                       customerData.setPost_url(post_url);
+                       String post_url =  chanel.set_to_programm_chanal(customerRepository, getBotToken(), update.getCallbackQuery().getMessage(), postRepository);
+
+                       setPostLinkToTable(update,post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
                }
-               else if(check_subj.equals(subjects.CHEMISTRY.toString())){
+               else if(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch().equals(const_text.getChemistry_text())){
                    try {
-                       String post_url = chanel.set_to_chemistry_chanal(customerData, getBotToken());
-                       customerData.setPost_url(post_url);
+                       String post_url = chanel.set_to_chemistry_chanal(customerRepository, getBotToken(), update.getCallbackQuery().getMessage(), postRepository);
+
+                       setPostLinkToTable(update,post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
                }
-               else if(check_subj.equals(subjects.MEDICINE.toString())){
+               else if(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch().equals(const_text.getMedicine_text())){
                    try {
-                       String post_url = chanel.set_to_medic_chanal(customerData, getBotToken());
-                       customerData.setPost_url(post_url);
+                       String post_url = chanel.set_to_medic_chanal(customerRepository, getBotToken(),update.getCallbackQuery().getMessage(), postRepository);
+                       /*customerData.setPost_url(post_url);*/
+                       setPostLinkToTable(update,post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
                }
-               else if(check_subj.equals(subjects.GEOGRAPHY.toString())){
+               else if(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch().equals(const_text.getGeographe_text())){
                    try {
-                       String post_url=chanel.set_to_geography_chanal(customerData, getBotToken());
-                       customerData.setPost_url(post_url);
+                       String post_url=chanel.set_to_geography_chanal(customerRepository, getBotToken(), update.getCallbackQuery().getMessage(), postRepository);
+                       /*customerData.setPost_url(post_url);*/
+                       setPostLinkToTable(update,post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
                }
-               else if(check_subj.equals(subjects.PHYLOSOPHY.toString())){
+               else if(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch().equals(const_text.getPhylosophy_text())){
                    try {
-                       String post_url= chanel.set_to_phylosophy_chanal(customerData, getBotToken());
-                       customerData.setPost_url(post_url);
+                       String post_url= chanel.set_to_phylosophy_chanal(customerRepository, getBotToken(), update.getCallbackQuery().getMessage(), postRepository);
+                      /* customerData.setPost_url(post_url);*/
+                       setPostLinkToTable(update,post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
                }
-               else if(check_subj.equals(subjects.LANGUAGES.toString())){
+               else if(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch().equals(const_text.getLanguages_text())){
                    try {
-                       String post_url= chanel.set_to_language_chanal(customerData, getBotToken());
-                       customerData.setPost_url(post_url);
+                       String post_url= chanel.set_to_language_chanal(customerRepository, getBotToken(), update.getCallbackQuery().getMessage(), postRepository);
+                       /*customerData.setPost_url(post_url);*/
+                       setPostLinkToTable(update,post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
                }
-               else if(check_subj.equals(subjects.ANOTHER.toString())){
+               else if(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch().equals(const_text.getAnother_text())){
                    try {
-                       String post_url= chanel.set_to_main_chanal(customerData, getBotToken());
-                       customerData.setPost_url(post_url);
+                       String post_url= chanel.set_to_main_chanal(customerRepository, getBotToken(), update.getCallbackQuery().getMessage(), postRepository);
+                      /* customerData.setPost_url(post_url);*/
+                       setPostLinkToTable(update,post_url);
                    } catch (IOException e) {
                        throw new RuntimeException(e);
                    }
                }
 
-               set_post(String.valueOf(chatID),1,messageID);
-                set_main_menu(String.valueOf(chatID));
+               set_post(String.valueOf(chatID),1,update.getCallbackQuery().getMessage().getMessageId(), update.getCallbackQuery().getMessage());
+                set_main_menu(String.valueOf(chatID), update.getCallbackQuery().getMessage());
             }
             else if (messagetext.equals("Візьму")){
                performer_check(update.getCallbackQuery().getFrom(),update.getCallbackQuery().getId());
-                    set_information_about_performer(update.getCallbackQuery().getFrom(), bot_chat_ID);
+                    set_information_about_performer(update.getCallbackQuery().getFrom(), postRepository.findById(update.getCallbackQuery().getMessage().getMessageId()).get().getCustomer_id(), update);
             }
             else if (messagetext.equals(subjects.CANCEL.toString())){
-               bargain_cancel(chatID);
+               bargain_cancel(chatID, update);
             }
-            else if (messagetext.equals(subjects.AGREE.toString())){
-                return_chat_link_and_show_sms_in_group(chatID);
-                return_chat_link_and_show_sms_for_performer_in_group();
+            //Згода на угоду
+            else if (Character.isDigit(messagetext.charAt(0))){
+                boolean flag = true;
+                String performerID="";
+                String postID="";
+                for (int i = 0; i < messagetext.length(); i++) {
+                    char chrs = messagetext.charAt(i);
+                    if (Character.isDigit(chrs) && flag) {
+                        postID = postID + chrs;
+                    }
+                    if (Character.isDigit(chrs) && !flag) {
+                        performerID = performerID + chrs;
+                    }
+                    if(chrs == ',') {
+                        flag=false;
+                    }
+
+                }
+
+                return_chat_link_and_show_sms_in_group(chatID, update);
+                return_chat_link_and_show_sms_for_performer_in_group(update, performerID, postID);
                 try {
                     set_sms_in_chat();
                 } catch (IOException e) {
@@ -211,7 +234,7 @@ public class Helpbot extends TelegramLongPollingBot {
             }
             else if (messagetext.equals("PRICE")) {
                 try {
-                    fix_finish_text_price_customer();
+                    fix_finish_text_price_customer(update.getCallbackQuery().getMessage());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -229,7 +252,7 @@ public class Helpbot extends TelegramLongPollingBot {
             }
         }
         if(update.hasMessage()) {
-            if (update.getMessage().hasDocument() && quiz == quiz.TEXTDESCRIPTION) {
+            if (update.getMessage().hasDocument() && customerRepository.findById(message.getChatId()).get().getState().equals( quiz.TEXTDESCRIPTION.toString())) {
                 const_text = new Text();
                 try {
                    get_file_description(update);
@@ -237,114 +260,139 @@ public class Helpbot extends TelegramLongPollingBot {
                     throw new RuntimeException(e);
                 }
 
-            } else if (update.hasMessage() && update.getMessage().hasPhoto() && quiz == quiz.TEXTDESCRIPTION) {
+            } else if (update.hasMessage() && update.getMessage().hasPhoto() && customerRepository.findById(message.getChatId()).get().getState().equals( quiz.TEXTDESCRIPTION.toString())) {
                 get_photo_description(update);
             }
         }
         if(message!=null){
-            bot_chat_ID = String.valueOf(message.getChatId());
+          /*  bot_chat_ID = String.valueOf(message.getChatId());*/
         String user_sms = message.getText();
 
         if(user_sms!=null) {
             const_text = new Text();
             if (user_sms.equals(const_text.getAgreement_text())) {
-                url_photo = new ArrayList();
-                url_file = new ArrayList();
+
                 end_stop_menu(String.valueOf(message.getChatId()));
                 if (!check_state) {
-                    set_post(String.valueOf(message.getChatId()),0,messageID);
+                    set_post(String.valueOf(message.getChatId()),0,update.getCallbackQuery().getMessage().getMessageId(), message);
                     set_last_buttons(String.valueOf(message.getChatId()));
-                } else set_subject_menu(String.valueOf(message.getChatId()));
+                } else set_subject_menu(String.valueOf(message.getChatId()),message);
 //
             } else if (user_sms.equals(const_text.getBack_text())) {
-                if (quiz == quiz.SUBJECTMENU) {
+                if (customerRepository.findById(message.getChatId()).get().getState().equals(quiz.SUBJECTMENU.toString())) {
                     end_stop_menu(String.valueOf(message.getChatId()));
-                    set_subject_menu(String.valueOf(message.getChatId()));
+                    set_subject_menu(String.valueOf(message.getChatId()),message);
 
-                } else if (quiz == quiz.MAINMENU) {
-                    set_main_menu(String.valueOf(message.getChatId()));
-                } else if (quiz == quiz.TEXTDESCRIPTION) {
-                    set_text_description(message.getChatId());
-                } else if (quiz == quiz.FILEDESCRIPTION) {
-                    set_file_description(message.getChatId());
+                } else if (customerRepository.findById(message.getChatId()).get().getState().equals(quiz.MAINMENU.toString())) {
+                    set_main_menu(String.valueOf(message.getChatId()),message);
+                } else if (customerRepository.findById(message.getChatId()).get().getState().equals(quiz.TEXTDESCRIPTION.toString())) {
+                    set_text_description(message.getChatId(), message);
+                } else if (customerRepository.findById(message.getChatId()).get().getState().equals(quiz.FILEDESCRIPTION.toString())) {
+                    set_file_description(message.getChatId(), message);
                     set_ready_button(String.valueOf(message.getChatId()));
-                } else if (quiz == quiz.PRICE || quiz == quiz.AGREEMENTPRICE || quiz == quiz.FIXPRICE) {
-                    set_price_description(String.valueOf(message.getChatId()));
+                } else if (customerRepository.findById(message.getChatId()).get().getState().equals(quiz.PRICE.toString()) || customerRepository.findById(message.getChatId()).get().getState().equals(quiz.AGREEMENTPRICE.toString()) || customerRepository.findById(message.getChatId()).get().getState().equals(quiz.FIXPRICE.toString())) {
+                    set_price_description(String.valueOf(message.getChatId()), message);
                 }
             } else if (user_sms.equals(const_text.getEnd_text())) {
-                set_main_menu(String.valueOf(message.getChatId()));
+                set_main_menu(String.valueOf(message.getChatId()), message);
                 check_state = true;
-            } else if (check_txt_description == true) {
-                get_text_description(message);
-                if(!check_state){set_post(String.valueOf(message.getChatId()),0,messageID);set_last_buttons(String.valueOf(message.getChatId()));}
-                else {
-                    set_file_description(message.getChatId());
+            } else if (customerRepository.findById(message.getChatId()).get().getCheckDescriptionState()!=null) {
+                if (customerRepository.findById(message.getChatId()).get().getCheckDescriptionState()==1){
+                    get_text_description(message);
+                if (!check_state) {
+                    set_post(String.valueOf(message.getChatId()), 0, update.getCallbackQuery().getMessage().getMessageId(), message);
+                    set_last_buttons(String.valueOf(message.getChatId()));
+                } else {
+                    set_file_description(message.getChatId(), message);
                     set_ready_button(String.valueOf(message.getChatId()));
                 }
-            } else if (user_sms.equals(const_text.getReady_text()) && quiz == quiz.TEXTDESCRIPTION) {
+            }
+            } else if (user_sms.equals(const_text.getReady_text()) && customerRepository.findById(message.getChatId()).get().getState().equals(quiz.TEXTDESCRIPTION.toString())) {
                 end_stop_menu(String.valueOf(message.getChatId()));
 
                 try {
-                    if (url_photo != null) set_photo_to_channel_and_return_link();
-                    if (url_file != null) set_file_to_channel_and_return_link();
-                    if (url_photo == null) customerData.setPhoto_url(null);
-                    if (url_file == null) customerData.setFile_url(null);
+                    if (customerRepository.findById(message.getChatId()).get().getPhotoLink()!= null) set_photo_to_channel_and_return_link(message);
+                    if (customerRepository.findById(message.getChatId()).get().getFileLink() != null) set_file_to_channel_and_return_link(message);
+                    if (customerRepository.findById(message.getChatId()).get().getPhotoLink() == null)  customerRepository.findById(message.getChatId()).get().setPhotoLink(null);
+                    if (customerRepository.findById(message.getChatId()).get().getFileLink()  == null) /*customerData.setFile_url(null)*/customerRepository.findById(message.getChatId()).get().setFileLink(null);
                     /*url_photo = null;
                     url_file = null;*/
-                    url_photo = new ArrayList();
-                    url_file = new ArrayList();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 if (!check_state) {
-                    set_post(String.valueOf(message.getChatId()),0,messageID);
+                    set_post(String.valueOf(message.getChatId()),0,update.getCallbackQuery().getMessage().getMessageId(), message);
                     set_last_buttons(String.valueOf(message.getChatId()));
-                } else set_price_description(String.valueOf(message.getChatId()));
+                } else set_price_description(String.valueOf(message.getChatId()), message);
             } else if (user_sms.equals(const_text.getChange_subject())) {
-                set_subject_menu(String.valueOf(message.getChatId()));
+                set_subject_menu(String.valueOf(message.getChatId()),message);
                 end_stop_menu(String.valueOf(message.getChatId()));
             } else if (user_sms.equals(const_text.getChange_description())) {
-                    set_text_description(message.getChatId());
+                    set_text_description(message.getChatId(), message);
                     end_stop_menu(String.valueOf(message.getChatId()));
             } else if (user_sms.equals(const_text.getChange_photo_or_file())) {
-                url_photo = new ArrayList();
-                url_file = new ArrayList();
-                set_file_description(message.getChatId());
+                List photo_list = new ArrayList();
+                List file_list=new ArrayList<>();
+               save_new_links(photo_list, file_list, message);
+                set_file_description(message.getChatId(), message);
                 set_ready_button(String.valueOf(message.getChatId()));
             } else if (user_sms.equals(const_text.getChange_price())) {
-                set_price_description(String.valueOf(message.getChatId()));
-            }else if (quiz == quiz.FIXPRICE ) {
-                boolean check_price=debug_fix_price(user_sms, message.getChatId());
-                if(check_price) {
-                    set_post(String.valueOf(message.getChatId()), 0, messageID);
-                    set_last_buttons(String.valueOf(message.getChatId()));
-                }
-                else {set_fix_price_menu(String.valueOf(message.getChatId()));}
-                check_state = false;
-            }
-            else if (user_sms.equals(const_text.getPerformer_register())) {
+                set_price_description(String.valueOf(message.getChatId()), message);
+            }else if (user_sms.equals(const_text.getPerformerRegister())) {
                 set_button_register_performer(String.valueOf(message.getChatId()));
             }
-            else if (flag) {
+            else if (customerRepository.findById(message.getChatId()).get().getPriceFlag()!=null) {
+                if (customerRepository.findById(message.getChatId()).get().getPriceFlag() == 1) {
+/*
                flag=false;
-                try {
-                    check_customers_price(user_sms, message);
-                    price=user_sms;
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+*/
+                    Customer customer = new Customer();
+                    customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+                    customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+                    customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+                    customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+                    customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+                    customer.setAgreementsState(true);
+                    customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+                    customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+                    customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+                    customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+                    customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+                    customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+                    customer.setPriceFlag(0);
+                    customerRepository.save(customer);
+                    try {
+                        check_customers_price(user_sms, message);
+                        price = user_sms;
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
+            else if (customerRepository.findById(message.getChatId()).get().getState()!=null) {
+                if (customerRepository.findById(message.getChatId()).get().getState().equals(quiz.FIXPRICE.toString())) {
+                boolean check_price = debug_fix_price(user_sms, message.getChatId(), message);
+                if (check_price) {
+                    set_post(String.valueOf(message.getChatId()), 0, update.getCallbackQuery().getMessage().getMessageId(), message);
+                    set_last_buttons(String.valueOf(message.getChatId()));
+                } else {
+                    set_fix_price_menu(String.valueOf(message.getChatId()), message);
+                }
+                check_state = false;
+            }
+            }
+
         }
             switch (user_sms) {
                     case "/start": {
-                        set_main_menu(String.valueOf(message.getChatId()));
+                        set_main_menu(String.valueOf(message.getChatId()),message);
                         check_state = true;
                         break;
                     }
                 }
         }
     }
-    public void set_main_menu(String chatId){
+    public void set_main_menu(String chatId, Message message){
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
         text = EmojiParser.parseToUnicode("Оберіть дію:" + ":blush:");
@@ -360,7 +408,7 @@ public class Helpbot extends TelegramLongPollingBot {
         text = EmojiParser.parseToUnicode("Активні виконавці"+":+1:");
         row1.add(text);
         KeyboardRow row2 = new KeyboardRow();
-        text = EmojiParser.parseToUnicode("Зареєструватися, як виконавець"+":woman_office_worker:");
+        text = EmojiParser.parseToUnicode(const_text.getPerformerRegister());
         row2.add(text);
         menu.add(row);
         menu.add(row1);
@@ -370,7 +418,9 @@ public class Helpbot extends TelegramLongPollingBot {
         keyboard.setOneTimeKeyboard(false);
         keyboard.setSelective(true);
         main_menu_sms.setReplyMarkup(keyboard);
-        quiz = quiz.MAINMENU;
+       /* quiz = quiz.MAINMENU;*/
+
+        save(message, quiz.MAINMENU.toString());
         try {
             // Send the message
             execute(main_menu_sms);
@@ -378,7 +428,7 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    public void set_subject_menu(String chatId){
+    public void set_subject_menu(String chatId, Message message){
       /*  const_text = new Text();*/
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
@@ -436,7 +486,8 @@ public class Helpbot extends TelegramLongPollingBot {
         rows_inline.add(row3_inline);
         inline_keybord.setKeyboard(rows_inline);
         main_menu_sms.setReplyMarkup(inline_keybord);
-        quiz= quiz.MAINMENU;
+       /* quiz= quiz.MAINMENU;*/
+        save(message, quiz.MAINMENU.toString());
         /*customerData=new CustomerData();*/
         try{
             execute(main_menu_sms);
@@ -469,26 +520,53 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    public void set_text_description(long chatId){
+    public void set_text_description(long chatId, Message message){
         SendMessage sendMessage = new SendMessage();
         sendMessage.setText("Опишіть своє завдання (без фото або файлів)");
         sendMessage.setChatId(chatId);
-        quiz=quiz.SUBJECTMENU;
-        check_txt_description = true;
+       /* quiz=quiz.SUBJECTMENU;*/
+        save(message, quiz.SUBJECTMENU.toString());
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+        customer.setCheckDescriptionState(1);
+        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+        customer.setPriceFlag(customerRepository.findById(message.getChatId()).get().getPriceFlag());
+        customerRepository.save(customer);
         try{
             execute(sendMessage);
         }catch(TelegramApiException e){
             e.printStackTrace();
         }
-
     }
     public void get_text_description(Message message){
+
         String user_text_description = message.getText();
-        SendMessage check = new SendMessage();
+        /*SendMessage check = new SendMessage();
         check.setChatId(message.getChatId());
-        check.setText(user_text_description);
-        customerData.setDescription(user_text_description);
-        check_txt_description=false;
+        check.setText(user_text_description);*/
+    /* *//*   customerData.setDescription(user_text_description);*//*
+        customerRepository.findById(message.getChatId()).get().setDescription(user_text_description);*/
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setDescription(user_text_description);
+        customer.setCheckDescriptionState(0);
+        customerRepository.save(customer);
+        /*check_txt_description=false;*/
 /*
         try{
             execute(check);
@@ -496,11 +574,12 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }*/
     }
-    public void set_file_description(long chatId){
+    public void set_file_description(long chatId, Message message){
         SendMessage sendMessage = new SendMessage();
         sendMessage.setText("Якщо є фото або файл, то відправте");
         sendMessage.setChatId(chatId);
-        quiz=quiz.TEXTDESCRIPTION;
+        save(message, quiz.TEXTDESCRIPTION.toString());
+       /* quiz=quiz.TEXTDESCRIPTION;*/
         try{
             execute(sendMessage);
         }catch(TelegramApiException e){
@@ -532,15 +611,31 @@ public class Helpbot extends TelegramLongPollingBot {
     }
     public void get_file_description(Update update) throws IOException {
         String file_id = update.getMessage().getDocument().getFileId();
-        String urlString = "https://api.telegram.org/bot5814824968:AAHriiP3p-FlWNLHn7UN8_-8ntGp1LUMEFg/sendDocument?chat_id=@vedmedik_base&document="+file_id;
+        String urlString = "https://api.telegram.org/bot5814824968:AAEZRhb1emGeCJJ2cgDFTXwRF-d4fdbw1w8/sendDocument?chat_id=@vedmedik_base&document="+file_id;
         String chatId = "@vedmedik_base";
         urlString = String.format(urlString, getBotToken(), chatId, file_id);
-        url_file.add(urlString);
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(update.getMessage().getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(update.getMessage().getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(update.getMessage().getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(update.getMessage().getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(update.getMessage().getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(update.getMessage().getChatId()).get().getDescription());
+        customer.setPhotoLink(customerRepository.findById(update.getMessage().getChatId()).get().getPhotoLink());
+        List fileList = customerRepository.findById(update.getMessage().getChatId()).get().getFileLink();
+        fileList.add(urlString);
+        customer.setFileLink(fileList);
+        customer.setPrice(customerRepository.findById(update.getMessage().getChatId()).get().getPrice());
+        customer.setPostLink(customerRepository.findById(update.getMessage().getChatId()).get().getPostLink());
+        customer.setState(customerRepository.findById(update.getMessage().getChatId()).get().getState());
+        customer.setPriceFlag(0);
+        customerRepository.save(customer);
     }
-    public void set_file_to_channel_and_return_link()throws IOException{
+    public void set_file_to_channel_and_return_link(Message message)throws IOException{
         List file_url_list = new ArrayList();
-        for (int j=0; j<url_file.size();j++) {
-            URL newurl = new URL((String) url_file.get(j));
+        for (int j=0; j<customerRepository.findById(message.getChatId()).get().getFileLink().size();j++) {
+            URL newurl = new URL((String) customerRepository.findById(message.getChatId()).get().getFileLink().get(j));
             URLConnection conn = newurl.openConnection();
             StringBuilder sb = new StringBuilder();
             InputStream is = new BufferedInputStream(conn.getInputStream());
@@ -571,19 +666,48 @@ public class Helpbot extends TelegramLongPollingBot {
             String url = "https://t.me/vedmedik_base/" + digits;
             file_url_list.add(url);
         }
-        customerData.setFile_url(file_url_list);
+       /* customerData.setFile_url(file_url_list);*/
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+        customer.setFileLink(file_url_list);
+        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+       /* customerRepository.saveAll(file_url_list);*/
+        customerRepository.save(customer);
     }
     public void get_photo_description(Update update) {
         String photo_id=update.getMessage().getPhoto().get(3).getFileId();
-        String urlString = "https://api.telegram.org/bot5814824968:AAHriiP3p-FlWNLHn7UN8_-8ntGp1LUMEFg/sendPhoto?chat_id=@vedmedik_base&photo="+photo_id;
+        String urlString = "https://api.telegram.org/bot5814824968:AAEZRhb1emGeCJJ2cgDFTXwRF-d4fdbw1w8/sendPhoto?chat_id=@vedmedik_base&photo="+photo_id;
         String chatId = "@vedmedik_base";
         urlString = String.format(urlString, getBotToken(), chatId, photo_id);
-        url_photo.add(urlString);
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(update.getMessage().getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(update.getMessage().getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(update.getMessage().getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(update.getMessage().getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(update.getMessage().getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(update.getMessage().getChatId()).get().getDescription());
+        customer.setFileLink(customerRepository.findById(update.getMessage().getChatId()).get().getFileLink());
+        List photoList = customerRepository.findById(update.getMessage().getChatId()).get().getPhotoLink();
+        photoList.add(urlString);
+        customer.setPhotoLink(photoList);
+        customer.setPrice(customerRepository.findById(update.getMessage().getChatId()).get().getPrice());
+        customer.setPostLink(customerRepository.findById(update.getMessage().getChatId()).get().getPostLink());
+        customer.setState(customerRepository.findById(update.getMessage().getChatId()).get().getState());
+        customer.setPriceFlag(0);
+        customerRepository.save(customer);
     }
-    public void set_photo_to_channel_and_return_link()throws IOException{
+    public void set_photo_to_channel_and_return_link(Message message)throws IOException{
         List photo_url_list = new ArrayList();
-         for (int j=0; j<url_photo.size();j++) {
-             URL newurl = new URL((String) url_photo.get(j));
+         for (int j=0; j<customerRepository.findById(message.getChatId()).get().getPhotoLink().size();j++) {
+             URL newurl = new URL((String) customerRepository.findById(message.getChatId()).get().getPhotoLink().get(j));
              URLConnection conn = newurl.openConnection();
              StringBuilder sb = new StringBuilder();
              InputStream is = new BufferedInputStream(conn.getInputStream());
@@ -614,9 +738,21 @@ public class Helpbot extends TelegramLongPollingBot {
              photo_url_list.add(url);
 
          }
-        customerData.setPhoto_url(photo_url_list);
+       /* customerData.setPhoto_url(photo_url_list);*/
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setPhotoLink(photo_url_list);
+        customerRepository.save(customer);
     }
-    public void set_price_description(String chatId){
+    public void set_price_description(String chatId, Message message){
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
         main_menu_sms.setText("Укажіть як ви хочете зробити угоду - з фіксованою ціною або домовитися з виконавцем:");
@@ -637,19 +773,21 @@ public class Helpbot extends TelegramLongPollingBot {
         rows_inline.add(row_inline);
         inline_keybord.setKeyboard(rows_inline);
         main_menu_sms.setReplyMarkup(inline_keybord);
-        quiz=quiz.FILEDESCRIPTION;
+        /*quiz=quiz.FILEDESCRIPTION;*/
+        save(message, quiz.FILEDESCRIPTION.toString());
         try{
             execute(main_menu_sms);
         }catch(TelegramApiException e){
             e.printStackTrace();
         }
     }
-    public void set_fix_price_menu(String chatId){
+    public void set_fix_price_menu(String chatId, Message message){
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
         text = EmojiParser.parseToUnicode("Напишіть вартість цифрою, без копійок:");
         main_menu_sms.setText(text);
-        quiz=quiz.FIXPRICE;
+        /*quiz=quiz.FIXPRICE;*/
+        save(message, quiz.FIXPRICE.toString());
         try {
             // Send the message
             execute(main_menu_sms);
@@ -657,15 +795,28 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    public boolean debug_fix_price(String user_price, long chatId){
+    public boolean debug_fix_price(String user_price, long chatId, Message message){
 
         try {
             int check_num = Integer.parseInt(user_price);
             SendMessage sendMessage = new SendMessage();
             sendMessage.setText("Ціну зафіксовано, вона дорівнює: " + check_num);
             sendMessage.setChatId(chatId);
-            customerData.setPrice(check_num);
-            quiz=quiz.FIXPRICE;
+           /* customerData.setPrice(check_num);*/
+            Customer customer = new Customer();
+            customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+            customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+            customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+            customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+            customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+            customer.setAgreementsState(true);
+            customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+            customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+            customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+            customer.setPrice(String.valueOf(check_num));
+            customerRepository.save(customer);
+            /*quiz=quiz.FIXPRICE;*/
+            customer.setState(String.valueOf(quiz.FIXPRICE));
             try {
                 // Send the message
                 execute(sendMessage);
@@ -688,14 +839,27 @@ public class Helpbot extends TelegramLongPollingBot {
         }
         return true;
     }
-    public void set_agreement_price_menu(String chatId){
+    public void set_agreement_price_menu(String chatId, Message message){
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
         text = EmojiParser.parseToUnicode("Добре, за ціною домовитеся з виконавцем");
         main_menu_sms.setText(text);
         text = "Домовлена";
-        quiz=quiz.AGREEMENTPRICE;
-        customerData.setPrice(text);
+     /*   quiz=quiz.AGREEMENTPRICE;*/
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+        customer.setPrice(text);
+        customer.setState(String.valueOf(quiz.FIXPRICE));
+        customerRepository.save(customer);
+       /* quiz=quiz.FIXPRICE;*/
         try {
             // Send the message
             execute(main_menu_sms);
@@ -703,15 +867,16 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    public void set_post(String chatId, int check, long messageID){
-        CustomerActions customerActions = new CustomerActions(customerData);
+    public void set_post(String chatId, int check, long messageID, Message message){
+        CustomerActions customerActions = new CustomerActions(customerRepository);
         String post;
         if(check == 0) {
-           post = customerActions.post_tostr(0);
+           post = customerActions.post_tostr(0, message);
             SendMessage sendMessage = new SendMessage();
             sendMessage.setParseMode("HTML");
             sendMessage.setChatId(chatId);
             sendMessage.setText(post);
+
             check_state = false;
             try {
                 // Send the message
@@ -722,13 +887,14 @@ public class Helpbot extends TelegramLongPollingBot {
             }
 
         }else {
-            post = customerActions.post_tostr(1);
+            post = customerActions.post_tostr(1, message);
             EditMessageText editMessageText = new EditMessageText();
             editMessageText.setChatId(chatId);
             editMessageText.setMessageId((int) messageID);
             editMessageText.setParseMode("HTML");
             editMessageText.setText(post);
             check_state = true;
+
             try {
                 // Send the message
                 execute(editMessageText);
@@ -802,6 +968,15 @@ public class Helpbot extends TelegramLongPollingBot {
             customer.setName(chat.getFirstName());
             customer.setSurname(chat.getLastName());
             customer.setUser_nick(chat.getUserName());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+        customer.setPriceFlag(0);
             customerRepository.save(customer);
            customers_id = chatID;
       }
@@ -834,6 +1009,14 @@ public class Helpbot extends TelegramLongPollingBot {
             answerCallbackQuery.setCallbackQueryId(chatID);
             answerCallbackQuery.setText("Ваша заявка була відправлена користувачу на розгляд");
             answerCallbackQuery.setShowAlert(true);
+          /*  Performer performer = new Performer();
+            performer.setChatID(performerRepository.findById(user.getId()).get().getChatID());
+            performer.setName(performerRepository.findById(user.getId()).get().getName());
+            performer.setSurname(performerRepository.findById(user.getId()).get().getSurname());
+            performer.setUser_nick(performerRepository.findById(user.getId()).get().getUser_nick());
+            performer.setRating(performerRepository.findById(user.getId()).get().getRating());
+            performer.setBargain_amount(performerRepository.findById(user.getId()).get().getBargain_amount());
+            performerRepository.save(performer);*/
             performers_id = user.getId();
             try {
                 // Send the message
@@ -842,19 +1025,16 @@ public class Helpbot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
-//            customer.setPrice(20);
-//            customer.setPaid(true);
-//            customer.setPerformersAmount(5);
-//            customer.setAgreementsState(true);
-//            customerRepository.save(customer);
+
     }
-    public void set_information_about_performer(User user, String chatID)  {
+    public void set_information_about_performer(User user, Long chatID, Update update)  {
         if(!performerRepository.findById(user.getId()).isEmpty()){
             performer_id = String.valueOf(user.getId());
-            CustomerActions customerActions = new CustomerActions(customerData);
-            String post = customerActions.get_customer_post_link_tostr();
+            CustomerActions customerActions = new CustomerActions(customerRepository);
+            String post = customerActions.get_customer_post_link_tostr(update,postRepository);
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(chatID);
+
             sendMessage.setText("Користувач " + performerRepository.findById(user.getId()).get().getName() + " " + performerRepository.findById(user.getId()).get().getSurname() + ", з рейтингом: " + performerRepository.findById(user.getId()).get().getRating() + "та кількістю угод: " + performerRepository.findById(user.getId()).get().getBargain_amount() + ", готовий/а взятися за ваше завдання" + "\n" + post);
             InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
@@ -864,7 +1044,7 @@ public class Helpbot extends TelegramLongPollingBot {
             List<InlineKeyboardButton> row_inline=new ArrayList<>();
             var agree_Button = new InlineKeyboardButton();
             agree_Button.setText(const_text.getAgree_text());
-            agree_Button.setCallbackData(subjects.AGREE.toString());
+            agree_Button.setCallbackData(update.getCallbackQuery().getMessage().getMessageId()+","+update.getCallbackQuery().getFrom().getId());/*subjects.AGREE.toString()*/
             var cancel_Button = new InlineKeyboardButton();
             cancel_Button.setText(const_text.getCancel_text());
             cancel_Button.setCallbackData(subjects.CANCEL.toString());
@@ -881,10 +1061,10 @@ public class Helpbot extends TelegramLongPollingBot {
             }
         }
     }
-    private void bargain_cancel(long chatID) {
+    private void bargain_cancel(long chatID, Update update) {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(chatID);
-        editMessageText.setMessageId((int) messageID);
+        editMessageText.setMessageId((int) update.getCallbackQuery().getMessage().getMessageId());
         editMessageText.setText("Спілку обірвано");
         check_state = true;
         try {
@@ -895,10 +1075,10 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    public void  return_chat_link_and_show_sms_in_group(long chatID){
+    public void  return_chat_link_and_show_sms_in_group(long chatID, Update update){
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(chatID);
-        editMessageText.setMessageId((int) messageID);
+        editMessageText.setMessageId((int) update.getCallbackQuery().getMessage().getMessageId());
         editMessageText.setText("Посилання на чат з виконавцем");
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
@@ -975,12 +1155,12 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    public void return_chat_link_and_show_sms_for_performer_in_group(){
-       CustomerActions customerActions = new CustomerActions(customerData);
+    public void return_chat_link_and_show_sms_for_performer_in_group(Update update, String performerID, String postID){
+       CustomerActions customerActions = new CustomerActions(customerRepository);
        SendMessage sendMessage = new SendMessage();
-       sendMessage.setChatId(performer_id);
+       sendMessage.setChatId(performerID);
        sendMessage.setParseMode("HTML");
-       sendMessage.setText("Посилання на чат з користувачем\n"+ customerActions.get_customer_post_link_tostr());
+       sendMessage.setText("Посилання на чат з користувачем з посту:\n"+ postRepository.findById(Integer.valueOf(postID)).get().getLink() /*customerActions.get_customer_post_link_tostr(update,postRepository)*/);
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
         List<InlineKeyboardButton> row_inline=new ArrayList<>();
@@ -1001,7 +1181,7 @@ public class Helpbot extends TelegramLongPollingBot {
         }
     }
     public void set_sms_in_chat() throws IOException {
-        CustomerActions customerActions=new CustomerActions(customerData);
+        CustomerActions customerActions=new CustomerActions(customerRepository);
         String post = customerActions.set_in_group_info_tostr();
         String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&reply_markup=%s&parse_mode=%s&text=%s";
         String chatId = "-811918442";
@@ -1019,8 +1199,22 @@ public class Helpbot extends TelegramLongPollingBot {
             sb.append(inputLine);
         }
     }
-    public void fix_finish_text_price_customer() throws IOException {
-        flag = true;
+    public void fix_finish_text_price_customer(Message message) throws IOException {
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+        customer.setPriceFlag(1);
+        customerRepository.save(customer);
         String post = "Користувач, напишіть ціну цифрою, без копійок";
         String urlString = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s";
         String chatId = "-811918442";
@@ -1052,7 +1246,7 @@ public class Helpbot extends TelegramLongPollingBot {
             while ((inputLine = br.readLine()) != null) {
                 sb.append(inputLine);
             }
-            fix_finish_text_price_customer();
+            fix_finish_text_price_customer(message);
             return false;
         }
         else {
@@ -1131,8 +1325,96 @@ public class Helpbot extends TelegramLongPollingBot {
 
         }
     }
-    public void close_bargain(){}
-
+    public void setBranchToTable(Message message, String strsubject){
+      /*  User user = message.getFrom();*/
+        if(!customerRepository.findById(message.getChatId()).isEmpty()) {
+            Customer customer = new Customer();
+            customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+            customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+            customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+            customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+            customer.setBranch(strsubject);
+            customer.setAgreementsState(true);
+            customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+            customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+            customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+            customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+            customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+            customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+            customer.setPriceFlag(0);
+            customerRepository.save(customer);
+        }else{
+            register_to_data_base_customer(message);
+            Customer customer = new Customer();
+            customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+            customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+            customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+            customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+            customer.setBranch(strsubject);
+            customerRepository.save(customer);
+        }
+    }
+    public void setPostLinkToTable(Update update, String postUrl){
+        if(!customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).isEmpty()) {
+            Customer customer = new Customer();
+            customer.setChatID(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getChatID());
+            customer.setSurname(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getSurname());
+            customer.setName(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getName());
+            customer.setUser_nick(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getUser_nick());
+            customer.setAgreementsState(true);
+            customer.setBranch(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getBranch());
+            customer.setDescription(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getDescription());
+            customer.setPrice(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getPrice());
+            customer.setPhotoLink(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getPhotoLink());
+            customer.setFileLink(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getFileLink());
+            customer.setPostLink(postUrl);
+            customerRepository.save(customer);
+        }/*else{
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(message.getChatId());
+            sendMessage.setText("ERROR");
+            try {
+                // Send the message
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }*/
+    }
+    public void save(Message message, String state){
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+        customer.setState(state);
+        customer.setPriceFlag(0);
+        customerRepository.save(customer);
+    }
+    public void save_new_links(List photo_list, List file_list, Message message){
+        Customer customer = new Customer();
+        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        customer.setAgreementsState(true);
+        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+        customer.setFileLink(file_list);
+        customer.setPhotoLink(photo_list);
+        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+        customer.setPriceFlag(0);
+        customerRepository.save(customer);;
+    }
 }
    /* public void set_last_menu(String chatId){
         SendMessage main_menu_sms = new SendMessage();

@@ -1,6 +1,9 @@
 package com.studentportal.StudentPortal.Helpbot.model;
 import lombok.Data;
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "perfomer_data_table")
@@ -18,5 +21,7 @@ public class Performer {
     private String rating;
     @Column(name = "bargain_amount") //Кількість угод
     private int bargain_amount;
+   /* @Column(name = "postLinks")
+    private List<String> postLinks = new ArrayList<>(); //(посилання на пости, які були взяті)*/
 }
 

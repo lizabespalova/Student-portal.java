@@ -1,40 +1,49 @@
 package com.studentportal.StudentPortal.Helpbot.service;
 
+import com.studentportal.StudentPortal.Helpbot.model.CustomerRepository;
+import com.studentportal.StudentPortal.Helpbot.model.PostRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 
 public class CustomerActions {
-   private CustomerData customerData;
-   CustomerActions(CustomerData customerData){
-       this.customerData =customerData;
-   }
+    @Autowired
+    private CustomerRepository customerRepository;
+    private Text constText = new Text();
+    CustomerActions(CustomerRepository customerRepository){
+     this.customerRepository =customerRepository;
+ }
     public void finish_price(){}
-    public StringBuilder set_customer_post() {
+    public StringBuilder set_customer_post(Message message) {
         StringBuilder sb = new StringBuilder(/*"<b>"*/);
-        sb.append(  customerData.getText().getActive_state());
+        sb.append(constText.getActive_state());
         sb.append("\n\n\n");
-        sb.append("<b>Галузь: </b>"+  customerData.getSubject());
+        String branch = customerRepository.findById(message.getChatId()).get().getBranch();
+        sb.append("<b>Галузь: </b>"+  branch);
         sb.append("\n\n\n");
         sb.append("<b>Опис: </b>");
-        sb.append(  customerData.getDescription());
+        String description = customerRepository.findById(message.getChatId()).get().getDescription();
+        sb.append(description);
         sb.append("\n\n\n");
-        sb.append("<b>"+customerData.getText().getPrice_text()+"</b>"+": "+ customerData.getPrice());
+        sb.append("<b>"+constText.getPrice_text()+"</b>"+": "+ customerRepository.findById(message.getChatId()).get().getPrice());
         sb.append("\n");
 
-        if(customerData.getFile_url()!=null) {
-            for (int i=0; i<customerData.getFile_url().size();i++) {
+        if(customerRepository.findById(message.getChatId()).get().getFileLink()!=null) {
+            for (int i=0; i<customerRepository.findById(message.getChatId()).get().getFileLink().size();i++) {
                 sb.append("<a href= \"");
-                sb.append(customerData.getFile_url().get(i));
+                sb.append(customerRepository.findById(message.getChatId()).get().getFileLink().get(i));
                 sb.append("\">");
                 sb.append("Прикріплений файл\n");
                 sb.append("</a>");
             }
         }
-        if(customerData.getPhoto_url()!=null) {
-            for (int i=0; i<customerData.getPhoto_url().size();i++) {
+        if(customerRepository.findById(message.getChatId()).get().getPhotoLink()!=null) {
+            for (int i=0; i<customerRepository.findById(message.getChatId()).get().getPhotoLink().size();i++) {
                 sb.append("<a href= \"");
-                sb.append(customerData.getPhoto_url().get(i));
+                sb.append(customerRepository.findById(message.getChatId()).get().getPhotoLink().get(i));
                 sb.append("\">");
                 sb.append("Прикріплене фото\n");
                 sb.append("</a>");
@@ -43,36 +52,36 @@ public class CustomerActions {
 
         return sb;
     }
-    public String post_tostr(int check){
+    public String post_tostr(int check, Message message){
        if(check==0) {
-           return set_customer_post().toString();
+           return set_customer_post(message).toString();
        }else {
-           return get_customer_post().toString();
+           return get_customer_post(message).toString();
        }
     }
-    public StringBuilder get_customer_post(){
+    public StringBuilder get_customer_post(Message message){
         StringBuilder sb = new StringBuilder(/*"<b>"*/);
         sb.append("Ось ваш пост у каналі:");
         sb.append("\n");
             sb.append("<a href= \"");
-            sb.append(customerData.getPost_url());
+            sb.append(customerRepository.findById(message.getChatId()).get().getPostLink());
             sb.append("\">");
             sb.append("Прикріплений пост\n");
             sb.append("</a>");
         return sb;
     }
-    public StringBuilder get_customer_post_link(){
+    public StringBuilder get_customer_post_link(Update update, PostRepository postRepository){
         StringBuilder sb = new StringBuilder();
         sb.append("Посилання на завдання:\n");
-        sb.append(customerData.getPost_url());
+        sb.append(postRepository.findById(update.getCallbackQuery().getMessage().getMessageId()).get().getLink());/*customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getPostLink()*/
         return sb;
     }
-    public String get_customer_post_link_tostr(){
-            return get_customer_post_link().toString();
+    public String get_customer_post_link_tostr(Update update, PostRepository postRepository){
+            return get_customer_post_link(update, postRepository).toString();
     }
     public StringBuilder set_in_group_info(){
         StringBuilder sb = new StringBuilder();
-        sb.append(  customerData.getText().getChat_text());
+        sb.append(constText.getChat_text());
         sb.append("\n\n\n");
         sb.append("Адміністрація:");
         sb.append("\n");

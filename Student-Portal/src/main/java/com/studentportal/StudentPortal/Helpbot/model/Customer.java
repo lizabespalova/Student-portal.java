@@ -1,29 +1,68 @@
 package com.studentportal.StudentPortal.Helpbot.model;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
-@Data
+import java.util.ArrayList;
+import java.util.List;
+
+
 @Entity
+@Data
 @Table(name = "customer_data_table")
 public class Customer {
     @Id
-    /*@GeneratedValue(strategy = GenerationType.AUTO)*/
     private Long chatID;
+
     @Column(name = "name")
     private String name;
     @Column(name = "surname")
     private String surname;
+
     @Column(name = "user_nick")
     private String user_nick;
-    @Column(name = "price")
-    private int price;
-    @Column(name = "is_paid")
-    private boolean isPaid;
-    @Column(name = "customer_performer")
-    private String customersPerformer;
+
     @Column(name = "agreement_state")
     private boolean agreementsState; //(true - завдання виконано, false - не виконано)
-    @Column(name = "performers_amount")
-    private int performersAmount;
 
+    @Column(name = "branch")
+    private String branch; //(Галузь)
+
+    @Column(name = "description")
+    private String description; //(Опис)
+
+    @Column(name = "price")
+    private String price; //(Ціна)
+
+
+    @ElementCollection(targetClass = String.class)
+    @LazyCollection(LazyCollectionOption.FALSE)
+   /* @CollectionTable(name = "customersPhotoLink", joinColumns = @JoinColumn(name = "id"))*/
+    @Column(name = "photoLink")
+    private List<String> photoLink= new ArrayList<>(); //(посилання на фото)
+
+    @ElementCollection(targetClass = String.class)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    /*@CollectionTable(name = "customersFileLink", joinColumns = @JoinColumn(name = "id"))*/
+    @Column(name = "fileLink")
+    private List<String> fileLink = new ArrayList<>(); //(посилання на файли)
+
+   /* @ElementCollection(targetClass = String.class)
+    @LazyCollection(LazyCollectionOption.FALSE)*/
+    @Column(name = "postLink")
+    private String postLink; //(посилання на пост)
+
+    @Column(name = "state")
+    private String state; //(на якій дії зараз людина)
+
+    @Column(nullable=true,name = "priceFlag")
+    private Integer priceFlag; //(на якій дії зараз людина)
+
+    @Column(nullable=true,name = "checkDescriptionState")
+    private Integer checkDescriptionState; //(на якій дії зараз людина)
 }
 
