@@ -37,6 +37,8 @@ public class Text {
     private final String go_chat = EmojiParser.parseToUnicode("Перейти в чат"+":eye:");
     private final String chat_text = EmojiParser.parseToUnicode("Вкажіть, будь ласка, ціну. У випадку закінчення угоди, натисніть будь ласка на кнопку \"Кінець угоди\" та пройдіть опитування. Якщо ви помітили співрозмовника у шахрайстві, зверніться до адміністрації, робіть це тайно. Успіхів!)");
     private final String performerRegister = EmojiParser.parseToUnicode("Зареєструватися, як виконавець"+":woman_office_worker:");
+    private final String priceChat = EmojiParser.parseToUnicode("Ціна"+":moneybag:");
+    private final String endBargain = EmojiParser.parseToUnicode("Завершити угоду"+":end:");
     public Text() {
 
     }

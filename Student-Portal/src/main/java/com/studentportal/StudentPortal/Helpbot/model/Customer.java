@@ -58,11 +58,13 @@ public class Customer {
 
     @Column(name = "state")
     private String state; //(на якій дії зараз людина)
-
     @Column(nullable=true,name = "priceFlag")
     private Integer priceFlag; //(на якій дії зараз людина)
 
     @Column(nullable=true,name = "checkDescriptionState")
     private Integer checkDescriptionState; //(на якій дії зараз людина)
+
+    @Column(nullable=true,name = "check_state")
+    private Boolean check_state;
 }
 
