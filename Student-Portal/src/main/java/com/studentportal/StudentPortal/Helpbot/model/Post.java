@@ -18,6 +18,10 @@ public class Post {
     private String link;
     @Column(nullable=true,name = "customer_id")
     private Long customer_id;
-    @Column(nullable=true,name = "performer_id")
-    private Long performer_id;
+    @Column(name = "chanel")
+    private String chanel;
+    @Column(nullable=true,name = "isActive")
+    private boolean isActive;
+//    @Column(nullable=true,name = "performer_id")
+//    private Long performer_id;
 }

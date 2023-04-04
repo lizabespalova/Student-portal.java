@@ -68,6 +68,8 @@ public class Chanels {
         newPost.setMessageID(Integer.valueOf(digits));
         newPost.setLink(urlList);
         newPost.setCustomer_id(message.getChatId());
+        newPost.setChanel("@matem_vedmedyk");
+        newPost.setActive(true);
         postRepository.save(newPost);
      return urlList;
 
@@ -114,6 +116,8 @@ public class Chanels {
         newPost.setMessageID(Integer.valueOf(digits));
         newPost.setLink(urlList);
         newPost.setCustomer_id(message.getChatId());
+        newPost.setChanel("@program_vedmedyk");
+        newPost.setActive(true);
         postRepository.save(newPost);
         return urlList;
     }
@@ -160,6 +164,8 @@ public class Chanels {
         newPost.setMessageID(Integer.valueOf(digits));
         newPost.setLink(urlList);
         newPost.setCustomer_id(message.getChatId());
+        newPost.setChanel("@chemistry_vedmedyk");
+        newPost.setActive(true);
         postRepository.save(newPost);
         return urlList;
     }
@@ -205,6 +211,8 @@ public class Chanels {
         newPost.setMessageID(Integer.valueOf(digits));
         newPost.setLink(urlList);
         newPost.setCustomer_id(message.getChatId());
+        newPost.setActive(true);
+        newPost.setChanel("@phylosophy_vedmedyk");
         postRepository.save(newPost);
         return urlList;
     }
@@ -250,6 +258,8 @@ public class Chanels {
         newPost.setMessageID(Integer.valueOf(digits));
         newPost.setLink(urlList);
         newPost.setCustomer_id(message.getChatId());
+        newPost.setChanel("@main_vedmedyk");
+        newPost.setActive(true);
         postRepository.save(newPost);
         return urlList;
     }
@@ -295,6 +305,8 @@ public class Chanels {
         newPost.setMessageID(Integer.valueOf(digits));
         newPost.setLink(urlList);
         newPost.setCustomer_id(message.getChatId());
+        newPost.setChanel("@medicine_vedmedyk");
+        newPost.setActive(true);
         postRepository.save(newPost);
         return urlList;
     }
@@ -340,6 +352,8 @@ public class Chanels {
         newPost.setMessageID(Integer.valueOf(digits));
         newPost.setLink(urlList);
         newPost.setCustomer_id(message.getChatId());
+        newPost.setChanel("@languages_vedmedyk");
+        newPost.setActive(true);
         postRepository.save(newPost);
         return urlList;
     }
@@ -385,6 +399,8 @@ public class Chanels {
         newPost.setMessageID(Integer.valueOf(digits));
         newPost.setLink(urlList);
         newPost.setCustomer_id(message.getChatId());
+        newPost.setChanel("@geogtaphy_vedmedyk");
+        newPost.setActive(true);
         postRepository.save(newPost);
         return urlList;
     }
@@ -400,6 +416,7 @@ public class Chanels {
         customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
         customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
         customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
         customer.setPostLink(urlList);
         customerRepository.save(customer);
     }

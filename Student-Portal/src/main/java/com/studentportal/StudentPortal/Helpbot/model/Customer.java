@@ -61,10 +61,10 @@ public class Customer {
     @Column(nullable=true,name = "priceFlag")
     private Integer priceFlag; //(на якій дії зараз людина)
 
-    @Column(nullable=true,name = "checkDescriptionState")
+    @Column(nullable=true,name = "checkDescriptionState", columnDefinition = "int default 0")
     private Integer checkDescriptionState; //(на якій дії зараз людина)
 
     @Column(nullable=true,name = "check_state")
-    private Boolean check_state;
+    private boolean check_state;
 }
 

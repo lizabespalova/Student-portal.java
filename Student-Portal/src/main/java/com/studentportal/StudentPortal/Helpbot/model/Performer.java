@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "perfomer_data_table")
+@Table(name = "performer_data_table")
 public class Performer {
     @Id
     /*@GeneratedValue(strategy = GenerationType.AUTO)*/

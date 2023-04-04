@@ -16,7 +16,24 @@ public class CustomerActions {
     CustomerActions(CustomerRepository customerRepository){
      this.customerRepository =customerRepository;
  }
-    public void finish_price(){}
+    public int finish_price_for_customer(int price){
+        if(price<=200){
+            return price+10;
+        }
+        else{
+            double procent = (double) price/(double) 100;
+            return (int) (procent*5+price);
+        }
+    }
+    public int finish_price_for_performer(int price){
+        if(price<=200){
+            return price-10;
+        }
+        else{
+            double procent = (double) price/(double) 100;
+            return (int) (price-procent*5);
+        }
+    }
     public StringBuilder set_customer_post(Message message) {
         StringBuilder sb = new StringBuilder(/*"<b>"*/);
         sb.append(constText.getActive_state());
