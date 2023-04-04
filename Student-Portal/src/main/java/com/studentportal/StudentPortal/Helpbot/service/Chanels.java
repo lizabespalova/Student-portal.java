@@ -400,6 +400,7 @@ public class Chanels {
         customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
         customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
         customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
         customer.setPostLink(urlList);
         customerRepository.save(customer);
     }

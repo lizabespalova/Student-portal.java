@@ -16,4 +16,7 @@ public class HelpbotConfig {
 
     @Value("${telegram.help.bot.token}")
     private String token;
+
+    @Value("${telegram.help.bot.tokenpay}")
+    private String tokenPay;
 }

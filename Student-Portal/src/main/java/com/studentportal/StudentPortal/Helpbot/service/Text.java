@@ -39,6 +39,16 @@ public class Text {
     private final String performerRegister = EmojiParser.parseToUnicode("Зареєструватися, як виконавець"+":woman_office_worker:");
     private final String priceChat = EmojiParser.parseToUnicode("Ціна"+":moneybag:");
     private final String endBargain = EmojiParser.parseToUnicode("Завершити угоду"+":end:");
+    private final String title = EmojiParser.parseToUnicode("Форма для оплати"+":page_with_curl:");
+    private final String invocieDescription = EmojiParser.parseToUnicode("Шановний користувач, сплатіть, будь ласка, вартість вашого завдання з додаванням відсотка за користування ботом.(до 200 грн - 10 грн, 201грн та вище-+5% від вартості завдання). "+":credit_card:"+". Коли виконавець виконає ваше завдання,гроші будуть переведено виконавцю. У випадку підозри на шахрайство/шахрайства зверніться до адміністратора. (у закріпленому повідомленні або в групі.)"+"\n:heavy_exclamation_mark:Увага: з виконавця буде снято такий самий відсоток"+"\nСума, яку необхідно сплатити користувачу:");
+    private final String formDescription = EmojiParser.parseToUnicode("Для оплати користувачеві"+":pound: ");
+    private final String pay = EmojiParser.parseToUnicode("Сплатити"+":pound:");
+    private final String msgPayYes =  EmojiParser.parseToUnicode("Шановний виконавець, користувач оплатив завдання. Ви можете розпочинати роботу"+":white_check_mark:");
+    private final String blockPay =  EmojiParser.parseToUnicode("Ціну вже було обговорено та угода оплачена. Навряд чи ви хочете сплачувати двічі"+":upside_down:");
+    private final String isPaid =  EmojiParser.parseToUnicode("Угоду оплачено"+":+1:");
+    private final String littleMoney = EmojiParser.parseToUnicode("\"Замало/Забагато грошей. Ми знаємо, що забагато грошей не буває, але бот не витримає ваш апетит\""+":smirk:");
+    private final String warningToCustomer = EmojiParser.parseToUnicode("Шановний користувач, виконавець покинув чат. Якщо це не очікувано та не заплановано, зверніться до адміністратору для повернення ваших грошей та обговорення ситуації, виконавця може бути внесено до чорного списку."+":pensive:"+"\nАдміністрація: @lizabespalova");
+    private final String warningToPerformer = EmojiParser.parseToUnicode("Шановний виконавець, користувач чомусь покинув чат, не пройшовши опитування. Якщо це сталося випадково, то він має право повернути гроші звернувшись до адміністрації. В такому випадку ми не можемо заплатити вам за завдання, але якщо ви почали його виконувати ви маєте право отримати свої гроші. Для цього вам потрібно звернутися до адміністратора та довести свою працю фото протягом дня. Якщо користувач просто не закрив угоду, то ви також звертаєся до адміністрації та отримуєту свої гроші.\n"+":bangbang:"+"Велике прохання, не видаляти чат, щоб адміністрація могла подивитися в нього. У випадку видалення чаті грошу можуть бути повернені протягом 3-х днів\nАдміністрація: @lizabespalova");
     public Text() {
 
     }
