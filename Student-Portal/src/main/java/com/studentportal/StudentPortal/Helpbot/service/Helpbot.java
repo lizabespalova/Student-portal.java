@@ -1,9 +1,8 @@
 package com.studentportal.StudentPortal.Helpbot.service;
 /*import com.pengrad.telegrambot.request.CreateInvoiceLink;
 import com.pengrad.telegrambot.model.request.LabeledPrice;*/
-import com.pengrad.telegrambot.request.RevokeChatInviteLink;
-import com.pengrad.telegrambot.request.SendInvoice;
-import com.pengrad.telegrambot.request.UnbanChatMember;
+//import com.pengrad.telegrambot.request.ExportChatInviteLink;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.ExportChatInviteLink;
 import com.studentportal.StudentPortal.Helpbot.config.HelpbotConfig;
 import com.studentportal.StudentPortal.Helpbot.model.*;
 import com.vdurmont.emoji.EmojiParser;
@@ -17,6 +16,7 @@ import org.telegram.telegrambots.meta.api.methods.invoices.CreateInvoiceLink;
 import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.ChatInviteLink;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -367,17 +367,25 @@ public class Helpbot extends TelegramLongPollingBot {
 //                                        newChatLink = String.valueOf(sbb.append(inputLn));
 //                                    }
                             String newChatLink = "";
+//                            String urlStr = "https://api.telegram.org/bot%s/exportChatInviteLink?chat_id=%s";
+//                            urlStr = String.format(urlStr, getBotToken(), chanels);
+//                            URL newurll = new URL(urlStr);
+//                            URLConnection con = newurll.openConnection();
+//                            StringBuilder sbb = new StringBuilder();
+//                            InputStream iss = new BufferedInputStream(con.getInputStream());
+//                            BufferedReader brr = new BufferedReader(new InputStreamReader(iss));
+//                            String inputLn = "";
+//                            while ((inputLn = brr.readLine()) != null) {
+//                                newChatLink = String.valueOf(sbb.append(inputLn));
+//                            };
                             long chanels = roomsRepository.findById(i+1).get().getRoomID();
-                            String urlStr = "https://api.telegram.org/bot%s/exportChatInviteLink?chat_id=%s";
-                            urlStr = String.format(urlStr, getBotToken(), chanels);
-                            URL newurll = new URL(urlStr);
-                            URLConnection con = newurll.openConnection();
-                            StringBuilder sbb = new StringBuilder();
-                            InputStream iss = new BufferedInputStream(con.getInputStream());
-                            BufferedReader brr = new BufferedReader(new InputStreamReader(iss));
-                            String inputLn = "";
-                            while ((inputLn = brr.readLine()) != null) {
-                                newChatLink = String.valueOf(sbb.append(inputLn));
+                            ExportChatInviteLink exportChatInviteLink = new ExportChatInviteLink();
+                            exportChatInviteLink.setChatId(chanels);
+                            try {
+                                // Send the message
+                                newChatLink = execute(exportChatInviteLink);
+                            } catch (TelegramApiException e) {
+                                e.printStackTrace();
                             }
                             Rooms rooms = new Rooms();
                             rooms.setIsFree(true);
@@ -609,7 +617,7 @@ public class Helpbot extends TelegramLongPollingBot {
                 set_button_register_performer(String.valueOf(message.getChatId()));
             }  else if (user_sms.equals(const_text.getCleaning())) {
                 try {
-                    cleanRoom(update);
+                    cleanRoom(update,true);
                 } catch (IOException e) {throw new RuntimeException(e);}
             }
             else {
@@ -2409,8 +2417,6 @@ public class Helpbot extends TelegramLongPollingBot {
         long customerID=0;
         long performerID=0;
         long roomID = 0;
-        String inviteLink="";
-        long chanels=0;
         for(int i=0;i<roomsRepository.count();i++){
             if(update.getMessage().getChat().getId().equals(roomsRepository.findById(i+1).get().getRoomID())){
 //                        String newChatLink = "";
@@ -2426,29 +2432,36 @@ public class Helpbot extends TelegramLongPollingBot {
 //                        String inputLn = "";
 //                        while ((inputLn = brr.readLine()) != null) {
 //                            newChatLink = String.valueOf(sbb.append(inputLn));
+//                        String urlStr = "https://api.telegram.org/bot%s/exportChatInviteLink?chat_id=%s";
+//                        urlStr = String.format(urlStr, getBotToken(), chanels);
+//                        URL newurll = new URL(urlStr);
+//                        URLConnection con = newurll.openConnection();
+//                        StringBuilder sbb = new StringBuilder();
+//                        InputStream iss = new BufferedInputStream(con.getInputStream());
+//                        BufferedReader brr = new BufferedReader(new InputStreamReader(iss));
+//                        String inputLn = "";
+//                        while ((inputLn = brr.readLine()) != null) {
+//                            newChatLink = String.valueOf(sbb.append(inputLn));
 //                        }
-                        String newChatLink = "";
-                        chanels = roomsRepository.findById(i+1).get().getRoomID();
-                        String urlStr = "https://api.telegram.org/bot%s/exportChatInviteLink?chat_id=%s";
-                        urlStr = String.format(urlStr, getBotToken(), chanels);
-                        URL newurll = new URL(urlStr);
-                        URLConnection con = newurll.openConnection();
-                        StringBuilder sbb = new StringBuilder();
-                        InputStream iss = new BufferedInputStream(con.getInputStream());
-                        BufferedReader brr = new BufferedReader(new InputStreamReader(iss));
-                        String inputLn = "";
-                        while ((inputLn = brr.readLine()) != null) {
-                            newChatLink = String.valueOf(sbb.append(inputLn));
-                        }
+                String newChatLink = "";
+                long chanels = roomsRepository.findById(i+1).get().getRoomID();
+                ExportChatInviteLink exportChatInviteLink = new ExportChatInviteLink();
+                exportChatInviteLink.setChatId(chanels);
+                try {
+                    // Send the message
+                    newChatLink = execute(exportChatInviteLink);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
                 customerID = roomsRepository.findById(i+1).get().getCustomerID();
                 performerID = roomsRepository.findById(i+1).get().getPerformerID();
                 roomID = roomsRepository.findById(i+1).get().getRoomID();
-                Rooms rooms = new Rooms();
-                rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
-                rooms.setRoomNumber(roomsRepository.findById(i+1).get().getRoomNumber());
-                rooms.setIsFree(true);
-                rooms.setChatLink(newChatLink);
-                roomsRepository.save(rooms);
+//                Rooms rooms = new Rooms();
+//                rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
+//                rooms.setRoomNumber(roomsRepository.findById(i+1).get().getRoomNumber());
+//                rooms.setIsFree(false);
+//                rooms.setChatLink(newChatLink);
+//                roomsRepository.save(rooms);
                 break;
             }
         }
@@ -2472,6 +2485,7 @@ public class Helpbot extends TelegramLongPollingBot {
 //                sb.append(inputLine);
 //            }
         }
+        cleanRoom(update,false);
     }
     public void setWarningRoguery(Update update){
         for(int i=0; i<roomsRepository.count();i++){
@@ -2627,6 +2641,7 @@ public class Helpbot extends TelegramLongPollingBot {
            sendCard(message.getChat().getId());
             for(int i=0; i<roomsRepository.count();i++){
                 if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChat().getId())){
+                    long performerID = roomsRepository.findById(i+1).get().getPerformerID();
                     Rooms rooms = new Rooms();
                     rooms.setIsFree(roomsRepository.findById(i+1).get().isIsFree());
                     rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
@@ -2640,7 +2655,22 @@ public class Helpbot extends TelegramLongPollingBot {
                     rooms.setStateInChat(roomsRepository.findById(i+1).get().getStateInChat());
                     rooms.setFollowing(2);
                     roomsRepository.save(rooms);
+                    Performer performer = new Performer();
+                    performer.setBargain_amount(performerRepository.findById(performerID).get().getBargain_amount()+1);
+                    performer.setChatID(performerRepository.findById(performerID).get().getChatID());
+                    performer.setSurname(performerRepository.findById(performerID).get().getSurname());
+                    performer.setName(performerRepository.findById(performerID).get().getName());
+                    performer.setUser_nick(performerRepository.findById(performerID).get().getUser_nick());
+                   if(performerRepository.findById(performerID).get().getRating().equals(const_text.getFirst_performer())){
+                       performer.setRating(message.getText());
+                   }else{
+                       long averageEstimate = Long.parseLong(performerRepository.findById(performerID).get().getRating());
+                       averageEstimate+=Long.parseLong(message.getText());
+                       averageEstimate/=performerRepository.findById(performerID).get().getBargain_amount()+1;
+                       performer.setRating(String.valueOf(averageEstimate));
+                   }
                     break;
+
                 }
             }
         }
@@ -2794,17 +2824,25 @@ public class Helpbot extends TelegramLongPollingBot {
 //                }
                 String newChatLink = "";
                 long chanels = roomsRepository.findById(i+1).get().getRoomID();
-                String urlStr = "https://api.telegram.org/bot%s/exportChatInviteLink?chat_id=%s";
-                urlStr = String.format(urlStr, getBotToken(), chanels);
-                URL newurll = new URL(urlStr);
-                URLConnection con = newurll.openConnection();
-                StringBuilder sbb = new StringBuilder();
-                InputStream iss = new BufferedInputStream(con.getInputStream());
-                BufferedReader brr = new BufferedReader(new InputStreamReader(iss));
-                String inputLn = "";
-                while ((inputLn = brr.readLine()) != null) {
-                    newChatLink = String.valueOf(sbb.append(inputLn));
+                ExportChatInviteLink exportChatInviteLink = new ExportChatInviteLink();
+                exportChatInviteLink.setChatId(chanels);
+                try {
+                    // Send the message
+                  newChatLink = execute(exportChatInviteLink);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
                 }
+//                String urlStr = "https://api.telegram.org/bot%s/exportChatInviteLink?chat_id=%s";
+//                urlStr = String.format(urlStr, getBotToken(), chanels);
+//                URL newurll = new URL(urlStr);
+//                URLConnection con = newurll.openConnection();
+//                StringBuilder sbb = new StringBuilder();
+//                InputStream iss = new BufferedInputStream(con.getInputStream());
+//                BufferedReader brr = new BufferedReader(new InputStreamReader(iss));
+//                String inputLn = "";
+//                while ((inputLn = brr.readLine()) != null) {
+//                    newChatLink = String.valueOf(sbb.append(inputLn));
+//                }
                 Rooms rooms = new Rooms();
                 rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
                 rooms.setRoomNumber(roomsRepository.findById(i + 1).get().getRoomNumber());
@@ -2818,7 +2856,7 @@ public class Helpbot extends TelegramLongPollingBot {
         }
 
     }
-    public void cleanRoom(Update update) throws IOException {
+    public void cleanRoom(Update update, boolean deletePost) throws IOException {
         long postID = 0;
         long chanels = 0;
 
@@ -2855,9 +2893,11 @@ public class Helpbot extends TelegramLongPollingBot {
                 break;
             }
         }
-        if(!postRepository.findById((int) postID).isEmpty()&&!postRepository.findById((int) postID).get().isActive()) {
-            Post post = postRepository.findById((int) postID).orElseThrow();
-            postRepository.delete(post);
+        if(deletePost) {
+            if (!postRepository.findById((int) postID).isEmpty() && !postRepository.findById((int) postID).get().isActive()) {
+                Post post = postRepository.findById((int) postID).orElseThrow();
+                postRepository.delete(post);
+            }
         }
     }
 }
