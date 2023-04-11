@@ -29,4 +29,10 @@ public class Rooms {
     private Integer price;
     @Column(nullable=true,name = "stateInChat")
     private Integer stateInChat;
+    @Column(nullable=true,name = "date")
+    private String date;
+    @Column(nullable=true,name = "payload")
+    private String payload;
+    @Column(nullable=true,name = "following")//послідовність дій при закінченні угоди. Якщо 1, то перевіряти смс користувача щодо оцінки виконавця.Якщо 2,то видаляємо користуавача та просимо картку виконавця.Якщо 3 , то встановлюємо успішну угоду, видаляємо виконаця та звільняємо кімнату
+    private Integer following;
 }
