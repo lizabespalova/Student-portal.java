@@ -2860,23 +2860,6 @@ public class Helpbot extends TelegramLongPollingBot {
             postRepository.delete(post);
         }
     }
-    /*public void save_new_links(List photo_list, List file_list, Message message){
-        Customer customer = new Customer();
-        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
-        customer.setAgreementsState(true);
-        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-        customer.setFileLink(file_list);
-        customer.setPhotoLink(photo_list);
-        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
-        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
-        customer.setPriceFlag(0);
-        customerRepository.save(customer);;
-    }*/
 }
    /* public void set_last_menu(String chatId){
         SendMessage main_menu_sms = new SendMessage();
