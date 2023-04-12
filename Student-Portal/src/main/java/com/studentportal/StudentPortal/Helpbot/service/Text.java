@@ -49,10 +49,10 @@ public class Text {
     private final String littleMoney = EmojiParser.parseToUnicode("\"Замало/Забагато грошей. Ми знаємо, що забагато грошей не буває, але бот не витримає ваш апетит\""+":smirk:");
     private final String warningToCustomer = EmojiParser.parseToUnicode("Шановний користувач, виконавець покинув чат. Якщо це не очікувано та не заплановано, зверніться до адміністратору для повернення ваших грошей та обговорення ситуації, виконавця може бути внесено до чорного списку."+":pensive:"+"\nАдміністрація: @lizabespalova");
     private final String warningToPerformer = EmojiParser.parseToUnicode("Шановний виконавець, користувач чомусь покинув чат, не пройшовши опитування. Якщо це сталося випадково, то він має право повернути гроші звернувшись до адміністрації. В такому випадку ми не можемо заплатити вам за завдання, але якщо ви почали його виконувати ви маєте право отримати свої гроші. Для цього вам потрібно звернутися до адміністратора та довести свою працю фото протягом дня. Якщо користувач просто не закрив угоду, то ви також звертаєся до адміністрації та отримуєту свої гроші.\n"+":bangbang:"+"Велике прохання, не видаляти чат, щоб адміністрація могла подивитися в нього. У випадку видалення чаті грошу можуть бути повернені протягом 3-х днів\nАдміністрація: @lizabespalova");
-    private final String byeTxt =EmojiParser.parseToUnicode(" Оцінку враховано. Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slightly_smiling_face:");
+    private final String byeTxt =EmojiParser.parseToUnicode(" Оцінку враховано. Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slight_smile: ");
     private final String myCard = EmojiParser.parseToUnicode("Я перевірив, це моя картка"+":ok_hand:");
     private final String areYouSure = EmojiParser.parseToUnicode("Перевірте ще раз уважно номер своєї картки. Не гнівайтеся за довге <що?де?коли?>,це для вашої же безпеки"+":woman_teacher:");
-    private final String byeTxtPerformer =EmojiParser.parseToUnicode("Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slightly_smiling_face:");
+    private final String byeTxtPerformer =EmojiParser.parseToUnicode("Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slight_smile: ");
     private final String cleaning = ("17032004adminLiza");
     public Text() {
 

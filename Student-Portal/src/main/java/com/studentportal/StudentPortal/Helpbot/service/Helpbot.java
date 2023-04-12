@@ -2,6 +2,7 @@ package com.studentportal.StudentPortal.Helpbot.service;
 /*import com.pengrad.telegrambot.request.CreateInvoiceLink;
 import com.pengrad.telegrambot.model.request.LabeledPrice;*/
 //import com.pengrad.telegrambot.request.ExportChatInviteLink;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.ExportChatInviteLink;
 import com.studentportal.StudentPortal.Helpbot.config.HelpbotConfig;
 import com.studentportal.StudentPortal.Helpbot.model.*;
@@ -387,6 +388,7 @@ public class Helpbot extends TelegramLongPollingBot {
                             } catch (TelegramApiException e) {
                                 e.printStackTrace();
                             }
+
                             Rooms rooms = new Rooms();
                             rooms.setIsFree(true);
                             rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
@@ -408,7 +410,7 @@ public class Helpbot extends TelegramLongPollingBot {
             else if (messagetext.equals("YESF")) {
                closeBargain(update);
                 try {
-                    setWarningToCleanRoom(update);
+                    setWarningToCleanRoom(update.getCallbackQuery().getMessage());
                 } catch (IOException e) {throw new RuntimeException(e);}
 //               cleanRoom(update);
             }
@@ -1583,7 +1585,7 @@ public class Helpbot extends TelegramLongPollingBot {
             }if(performerRepository.findById(user.getId()).get().getSurname()!=null){
                 userSurname = performerRepository.findById(user.getId()).get().getSurname();
             }
-            sendMessage.setText("Користувач " + userName + " " +  userSurname + ", з рейтингом: " + performerRepository.findById(user.getId()).get().getRating() + "та кількістю угод: " + performerRepository.findById(user.getId()).get().getBargain_amount() + ", готовий/а взятися за ваше завдання" + "\n" + post);
+            sendMessage.setText("Користувач " + userName + " " +  userSurname + ", з рейтингом: " + performerRepository.findById(user.getId()).get().getRating() + " та кількістю угод: " + performerRepository.findById(user.getId()).get().getBargain_amount() + ", готовий/а взятися за ваше завдання" + "\n" + post);
             InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
 
@@ -2443,16 +2445,6 @@ public class Helpbot extends TelegramLongPollingBot {
 //                        while ((inputLn = brr.readLine()) != null) {
 //                            newChatLink = String.valueOf(sbb.append(inputLn));
 //                        }
-                String newChatLink = "";
-                long chanels = roomsRepository.findById(i+1).get().getRoomID();
-                ExportChatInviteLink exportChatInviteLink = new ExportChatInviteLink();
-                exportChatInviteLink.setChatId(chanels);
-                try {
-                    // Send the message
-                    newChatLink = execute(exportChatInviteLink);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
                 customerID = roomsRepository.findById(i+1).get().getCustomerID();
                 performerID = roomsRepository.findById(i+1).get().getPerformerID();
                 roomID = roomsRepository.findById(i+1).get().getRoomID();
@@ -2485,7 +2477,7 @@ public class Helpbot extends TelegramLongPollingBot {
 //                sb.append(inputLine);
 //            }
         }
-        cleanRoom(update,false);
+        setWarningToCleanRoom(update.getMessage());
     }
     public void setWarningRoguery(Update update){
         for(int i=0; i<roomsRepository.count();i++){
@@ -2664,11 +2656,12 @@ public class Helpbot extends TelegramLongPollingBot {
                    if(performerRepository.findById(performerID).get().getRating().equals(const_text.getFirst_performer())){
                        performer.setRating(message.getText());
                    }else{
-                       long averageEstimate = Long.parseLong(performerRepository.findById(performerID).get().getRating());
-                       averageEstimate+=Long.parseLong(message.getText());
+                       float averageEstimate = Float.parseFloat(performerRepository.findById(performerID).get().getRating());
+                       averageEstimate+=Float.parseFloat(message.getText());
                        averageEstimate/=performerRepository.findById(performerID).get().getBargain_amount()+1;
                        performer.setRating(String.valueOf(averageEstimate));
                    }
+                   performerRepository.save(performer);
                     break;
 
                 }
@@ -2795,19 +2788,19 @@ public class Helpbot extends TelegramLongPollingBot {
         newPost.setActive(false);
         postRepository.save(newPost);
     }
-    public void setWarningToCleanRoom(Update update) throws IOException {
+
+    public void setWarningToCleanRoom(Message message) throws IOException {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setText("Єлизавето, прибиральнице, видрій кімнату, сцуко!");
-        sendMessage.setChatId(update.getCallbackQuery().getMessage().getChat().getId());
+        sendMessage.setChatId(message.getChat().getId());
         try {
             // Send the message
             execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        String inviteLink="";
         for(int i=0; i<roomsRepository.count();i++){
-            if (update.getCallbackQuery().getMessage().getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
+            if (message.getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
 //                String newChatLink = "";
 //                inviteLink =roomsRepository.findById(i+1).get().getChatLink();
 //                String chanels = postRepository.findById(Math.toIntExact(roomsRepository.findById(i + 1).get().getPostId())).get().getChanel();
@@ -2900,6 +2893,7 @@ public class Helpbot extends TelegramLongPollingBot {
             }
         }
     }
+
 }
    /* public void set_last_menu(String chatId){
         SendMessage main_menu_sms = new SendMessage();
