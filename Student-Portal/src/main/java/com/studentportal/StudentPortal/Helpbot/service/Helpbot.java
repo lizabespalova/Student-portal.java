@@ -1,8 +1,6 @@
 package com.studentportal.StudentPortal.Helpbot.service;
-/*import com.pengrad.telegrambot.request.CreateInvoiceLink;
-import com.pengrad.telegrambot.model.request.LabeledPrice;*/
-//import com.pengrad.telegrambot.request.ExportChatInviteLink;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.ExportChatInviteLink;
 import com.studentportal.StudentPortal.Helpbot.config.HelpbotConfig;
 import com.studentportal.StudentPortal.Helpbot.model.*;
@@ -416,6 +414,10 @@ public class Helpbot extends TelegramLongPollingBot {
             }
             else if (messagetext.equals("NOF")) {
                 sendCard(update.getCallbackQuery().getMessage().getChat().getId());
+            }else if(messagetext.equals("THIEFLIST")){
+                showThiefList(update);
+            }else if(messagetext.equals("THIEFADD")){
+
             }
 //            else if (messagetext.equals("READY")) {
 //                                for(int i=0;i<roomsRepository.count();i++){
@@ -524,7 +526,10 @@ public class Helpbot extends TelegramLongPollingBot {
                     set_last_buttons(String.valueOf(message.getChatId()));
                 } else set_subject_menu(String.valueOf(message.getChatId()), message);
 //
-            } else if (user_sms.equals(const_text.getBack_text())) {
+            } else if (user_sms.equals(const_text.getThiefText())) {
+                setThiefList(update);
+            }
+            else if (user_sms.equals(const_text.getBack_text())) {
                 if (customerRepository.findById(message.getChatId()).get().getState().equals(quiz.SUBJECTMENU.toString())) {
                     end_stop_menu(String.valueOf(message.getChatId()));
                     set_subject_menu(String.valueOf(message.getChatId()), message);
@@ -837,11 +842,9 @@ public class Helpbot extends TelegramLongPollingBot {
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
         List<KeyboardRow> menu = new ArrayList<>();
         KeyboardRow row = new KeyboardRow();
-        text = EmojiParser.parseToUnicode("Зробити оголошення"+":woman_student:");
-        row.add(text);
+        row.add(const_text.getAgreement_text());
         KeyboardRow row1 = new KeyboardRow();
-        text = EmojiParser.parseToUnicode("Шахраї"+":octopus:");
-        row1.add(text);
+        row1.add(const_text.getThiefText());
         text = EmojiParser.parseToUnicode("Активні виконавці"+":+1:");
         row1.add(text);
         KeyboardRow row2 = new KeyboardRow();
@@ -2381,7 +2384,7 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
 }
-    public void blockPayment(SuccessfulPayment successfulPayment){
+    public void blockPayment(@NotNull SuccessfulPayment successfulPayment){
         int messageId = 0;
         long chatId=0;
        if(!purchaseRepository.findById(successfulPayment.getInvoicePayload()).isEmpty()){
@@ -2788,7 +2791,6 @@ public class Helpbot extends TelegramLongPollingBot {
         newPost.setActive(false);
         postRepository.save(newPost);
     }
-
     public void setWarningToCleanRoom(Message message) throws IOException {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setText("Єлизавето, прибиральнице, видрій кімнату, сцуко!");
@@ -2893,7 +2895,62 @@ public class Helpbot extends TelegramLongPollingBot {
             }
         }
     }
+    public void setThiefList(Update update){
+        if(update.getMessage().getFrom().getId()==782340442){
 
+        }else{
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(update.getMessage().getChat().getId());
+            sendMessage.setText(const_text.getThiefMenu());
+            InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+
+
+            var thiefListButton = new InlineKeyboardButton();
+            thiefListButton.setText(const_text.getThiefList());
+            thiefListButton.setCallbackData("THIEFLIST");
+            List<InlineKeyboardButton> row_inline=new ArrayList<>();
+            var thiefAddButton = new InlineKeyboardButton();
+            thiefAddButton.setText(const_text.getThiefAdd());
+            thiefAddButton.setCallbackData("THIEFADD");
+
+            row_inline.add(thiefListButton);
+            row_inline.add(thiefAddButton);
+            rows_inline.add(row_inline);
+            inline_keybord.setKeyboard(rows_inline);
+            sendMessage.setReplyMarkup(inline_keybord);
+            try {
+                // Send the message
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+   }
+
+
+    public void showThiefList(Update update){
+//        Customer customer = new Customer();
+//        customer.setChatID(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getChatID());
+//       customer.setAgreementsState(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().isAgreementsState());
+//       customer.setBranch(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getBranch());
+//       customer.setCheckDescriptionState(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getCheckDescriptionState());
+//       customer.setCheck_state(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().isCheck_state());
+//       customer.setDescription(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getDescription());
+//       customer.setName(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getName());
+//       customer.setPostLink(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getPostLink());
+//       customer.setPrice(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getPrice());
+//       customer.setPriceFlag(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getPriceFlag());
+//       customer.setState(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getState());
+//       customer.setSurname(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getSurname());
+//       customer.setUser_nick(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getUser_nick());
+//       customer.setThiefListState(1);
+//       customerRepository.save(customer);
+     Customer customer = customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get();
+     customer.setThiefListState(1);
+     customerRepository.save(customer);
+
+   }
 }
    /* public void set_last_menu(String chatId){
         SendMessage main_menu_sms = new SendMessage();

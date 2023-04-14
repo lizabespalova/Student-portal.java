@@ -66,5 +66,7 @@ public class Customer {
 
     @Column(nullable=true,name = "check_state")
     private boolean check_state;
+    @Column(nullable=true,name = "thiefListState")
+    private Integer thiefListState;
 }
 

@@ -9,6 +9,7 @@ public class Text {
     private final String end_text =  EmojiParser.parseToUnicode("Відмінити"+":x:");
     private final String ready_text =  EmojiParser.parseToUnicode("Готово"+":+1:");
     private final String agreement_text =  EmojiParser.parseToUnicode("Зробити оголошення"+":woman_student:");
+    private final String thiefText = EmojiParser.parseToUnicode("Шахраї"+":octopus:");
     private final String matem_text =   EmojiParser.parseToUnicode("Математика" + ":1234:");
     private final String programming_text=EmojiParser.parseToUnicode("Програмування" + ":computer:");
     private final String medicine_text=EmojiParser.parseToUnicode("Медицина" + ":woman_health_worker:");
@@ -54,6 +55,9 @@ public class Text {
     private final String areYouSure = EmojiParser.parseToUnicode("Перевірте ще раз уважно номер своєї картки. Не гнівайтеся за довге <що?де?коли?>,це для вашої же безпеки"+":woman_teacher:");
     private final String byeTxtPerformer =EmojiParser.parseToUnicode("Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slight_smile: ");
     private final String cleaning = ("17032004adminLiza");
+    private final String thiefMenu = ("Оберіть, будь ласка, дію:");
+    private final String thiefList = ("Показати список шахраїв");
+    private final String thiefAdd = ("Поскаржитися");
     public Text() {
 
     }
