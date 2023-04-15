@@ -2803,20 +2803,6 @@ public class Helpbot extends TelegramLongPollingBot {
         }
         for(int i=0; i<roomsRepository.count();i++){
             if (message.getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
-//                String newChatLink = "";
-//                inviteLink =roomsRepository.findById(i+1).get().getChatLink();
-//                String chanels = postRepository.findById(Math.toIntExact(roomsRepository.findById(i + 1).get().getPostId())).get().getChanel();
-//                String urlStr = "https://api.telegram.org/bot%s/revokeChatInviteLink?chat_id=%s&invite_link=%s";
-//                urlStr = String.format(urlStr, getBotToken(), chanels, inviteLink);
-//                URL newurll = new URL(urlStr);
-//                URLConnection con = newurll.openConnection();
-//                StringBuilder sbb = new StringBuilder();
-//                InputStream iss = new BufferedInputStream(con.getInputStream());
-//                BufferedReader brr = new BufferedReader(new InputStreamReader(iss));
-//                String inputLn = "";
-//                while ((inputLn = brr.readLine()) != null) {
-//                     newChatLink = String.valueOf(sbb.append(inputLn));
-//                }
                 String newChatLink = "";
                 long chanels = roomsRepository.findById(i+1).get().getRoomID();
                 ExportChatInviteLink exportChatInviteLink = new ExportChatInviteLink();
