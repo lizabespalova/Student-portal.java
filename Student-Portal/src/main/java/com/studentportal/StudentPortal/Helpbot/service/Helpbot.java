@@ -2930,22 +2930,6 @@ public class Helpbot extends TelegramLongPollingBot {
 
 
     public void showThiefList(Update update){
-//        Customer customer = new Customer();
-//        customer.setChatID(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getChatID());
-//       customer.setAgreementsState(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().isAgreementsState());
-//       customer.setBranch(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getBranch());
-//       customer.setCheckDescriptionState(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getCheckDescriptionState());
-//       customer.setCheck_state(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().isCheck_state());
-//       customer.setDescription(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getDescription());
-//       customer.setName(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getName());
-//       customer.setPostLink(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getPostLink());
-//       customer.setPrice(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getPrice());
-//       customer.setPriceFlag(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getPriceFlag());
-//       customer.setState(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getState());
-//       customer.setSurname(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getSurname());
-//       customer.setUser_nick(customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get().getUser_nick());
-//       customer.setThiefListState(1);
-//       customerRepository.save(customer);
      Customer customer = customerRepository.findById(update.getCallbackQuery().getMessage().getChat().getId()).get();
      customer.setThiefListState(1);
      customerRepository.save(customer);
