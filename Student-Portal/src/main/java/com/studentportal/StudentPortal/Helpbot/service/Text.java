@@ -58,6 +58,14 @@ public class Text {
     private final String thiefMenu = ("Оберіть, будь ласка, дію:");
     private final String thiefList = ("Показати список шахраїв");
     private final String thiefAdd = ("Поскаржитися");
+    private final String thiefId = ("Спочатку введи id");
+    private final String deleteThiefText = ("Для видалення шахрая з бази, введи його ID");
+    private final String deleteThief = ("Видалити");
+    private final String addThiefSurname = ("Вкажіть фамілію шахрая");
+    private final String addThiefName = ("Вкажіть ім'я шахрая");
+    private final String addThiefNick = ("Вкажіть нік шахрая");
+    private final String readyThief = ("Шахрая добавлено");
+    private final String checkThief=("Перевірити виконавця на шахрая");
     public Text() {
 
     }
