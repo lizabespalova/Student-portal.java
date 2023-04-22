@@ -68,5 +68,7 @@ public class Customer {
     private boolean check_state;
     @Column(nullable=true,name = "thiefListState", columnDefinition = "int default 0")
     private Integer thiefListState;
+    @Column(nullable=true,name = "message_thief_id", columnDefinition = "int default 0")
+    private Integer messageThiefID;
 }
 
