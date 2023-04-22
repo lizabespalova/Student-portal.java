@@ -3548,10 +3548,3 @@ sendMessage.setText(const_text.getThiefId());
         fos.close();
         rbc.close();
 */
-/*  BufferedReader in = new BufferedReader(new InputStreamReader( url.openStream()));
-        String res = in.readLine();
-        JSONObject jresult = new JSONObject(res);
-        JSONObject path = jresult.getJSONObject("result");
-        String file_path = path.getString("file_path");
-        String downoload = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file_path;
-        customerData.setFile_url(downoload);*/
