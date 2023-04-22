@@ -1,1 +1,6 @@
-Thief(thiefID=2222, name=Андрей, surname=Софонов, nick=sofffa,)
+Thief(thiefID= 1, name=Екатерина, surname=Филиппенко, nick=@Kaate_12,)
+Thief(thiefID=2, name=Лиза, surname=Беспалова, nick=-,)
+Thief(thiefID=3, name=Фома, surname=Киняев, nick=Анатольевич,)
+Thief(thiefID=4, name=Алина, surname=Гончарова, nick=Михайловна,)
+Thief(thiefID=5, name=Михаил, surname=Скрынник, nick=Михалыч,)
+Thief(thiefID=6, name=Костя, surname=-, nick=-,)

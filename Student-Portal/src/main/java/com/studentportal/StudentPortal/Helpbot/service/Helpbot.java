@@ -203,7 +203,6 @@ public class Helpbot extends TelegramLongPollingBot {
                        throw new RuntimeException(e);
                    }
                }
-
                set_post(String.valueOf(chatID),1,update.getCallbackQuery().getMessage().getMessageId(), update.getCallbackQuery().getMessage());
                 set_main_menu(String.valueOf(chatID), update.getCallbackQuery().getMessage());
             }
@@ -417,9 +416,13 @@ public class Helpbot extends TelegramLongPollingBot {
             }else if(messagetext.equals("THIEFLIST")){
                 showThiefList(update);
             }else if(messagetext.equals("THIEFADD")){
-
+                setAdminToAddThief(update);
             }else if(messagetext.equals("THIEFCHECK")){
 
+            }else if(messagetext.equals("LEFT")){
+             turnList(true, update.getCallbackQuery().getMessage());
+            }else if(messagetext.equals("RIGHT")){
+                turnList(false, update.getCallbackQuery().getMessage());
             }
 //            else if (messagetext.equals("READY")) {
 //                                for(int i=0;i<roomsRepository.count();i++){
@@ -459,9 +462,7 @@ public class Helpbot extends TelegramLongPollingBot {
         }
         if(update.hasPreCheckoutQuery()){
             PreCheckoutQuery preCheckoutQuery = update.getPreCheckoutQuery();
-
             AnswerPreCheckoutQuery answerPreCheckoutQuery = new AnswerPreCheckoutQuery(preCheckoutQuery.getId(),true);
-
             /*SendMessage sendMessage = new SendMessage();*/
             /*AnswerPreCheckoutQuery answerPreCheckoutQuery1 = new AnswerPreCheckoutQuery(String.valueOf(purchaseRepository.findById(preCheckoutQuery.getInvoicePayload()).get().getRoomID()),true);*/
             try {
@@ -795,14 +796,13 @@ public class Helpbot extends TelegramLongPollingBot {
                 }
             }
 if(message.getFrom().getId()==782340442&&!customerRepository.findById(782340442L).isEmpty()){
-    if(customerRepository.findById(782340442L).get().getThiefListState()==1){
-        getThiefID(message);
-        setThiefSurname(message);
-        menuDeleteThief(message);
-    }
-    else if(update.getMessage().getText().equals(const_text.getDeleteThief())){
+  if(update.getMessage().getText().equals(const_text.getDeleteThief())){
         setThiefIDtoAdmin(message);
-    }
+    }else if(customerRepository.findById(782340442L).get().getThiefListState()==1){
+      getThiefID(message);
+      setThiefSurname(message);
+      menuDeleteThief(message);
+  }
    else if(customerRepository.findById(782340442L).get().getThiefListState()==2){
         getThiefSurname(message);
         setThiefName(message);
@@ -2920,7 +2920,6 @@ sendMessage.setText(const_text.getThiefId());
             InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
 
-
             var thiefListButton = new InlineKeyboardButton();
             thiefListButton.setText(const_text.getThiefList());
             thiefListButton.setCallbackData("THIEFLIST");
@@ -2947,36 +2946,52 @@ sendMessage.setText(const_text.getThiefId());
         }
    }
     public void showThiefList(Update update){
-        Customer customer = customerRepository.findById(update.getCallbackQuery().getFrom().getId()).get();
-     customer.setThiefListState(1);
-     customerRepository.save(customer);
       String list = "";
+        String resultString="";
         try {
             FileReader fileReader = new FileReader("ThiefDataTableDownload");
             BufferedReader br = new BufferedReader(fileReader);
-
-            for(int i=0; i<=10;i++){
+            for(int i=0; i<10;i++){
              list += br.readLine();
             }
             fileReader.close();
             br.close();
            list=list.replace("null", "");
+            resultString = thiefRow(list,1);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-     /* int leftSide= 0;
-        int rightSide=customerRepository.findById(update.getCallbackQuery().getFrom().getId()).get().getThiefListState()*10;
-      for(int i=leftSide; i<=rightSide;i++){
-          list=thiefRepository.findAll().toString();
-      }*/
+
+        CustomerActions customerActions = new CustomerActions(customerRepository);
+        list = customerActions.getThiefList(resultString);
       SendMessage sendMessage=new SendMessage();
       sendMessage.setChatId(update.getCallbackQuery().getFrom().getId());
       sendMessage.setText(list);
+
+        InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+
+        List<InlineKeyboardButton> row_inline=new ArrayList<>();
+        var leftButton = new InlineKeyboardButton();
+        leftButton.setText(const_text.getLeftSide());
+        leftButton.setCallbackData("LEFT");
+        var rightButton = new InlineKeyboardButton();
+        rightButton.setText(const_text.getRightSide());
+        rightButton.setCallbackData("RIGHT");
+        row_inline.add(leftButton);
+        row_inline.add(rightButton);
+        rows_inline.add(row_inline);
+        inline_keybord.setKeyboard(rows_inline);
+        sendMessage.setReplyMarkup(inline_keybord);
         try {
             // Send the message
-            execute(sendMessage);
+          Message message = execute(sendMessage);
+            Customer customer = customerRepository.findById(update.getCallbackQuery().getFrom().getId()).get();
+            customer.setThiefListState(1);
+            customer.setMessageThiefID(message.getMessageId());
+            customerRepository.save(customer);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -3017,6 +3032,7 @@ sendMessage.setText(const_text.getThiefId());
        }
    }
    public void deleteThiefRow(Message message){
+       removeLineFromFile(message);
         try {
             Thief thief = thiefRepository.findById(Long.valueOf(message.getText())).orElseThrow();
             thiefRepository.delete(thief);
@@ -3040,6 +3056,7 @@ sendMessage.setText(const_text.getThiefId());
                 e.printStackTrace();
             }
         }
+
    }
    //Расскомментить нужный код
    public void getThiefID (Message message){
@@ -3212,9 +3229,10 @@ sendMessage.setText(const_text.getThiefId());
    }
    public void setThiefToFile (long thiefId, Message message){
         Thief thief = thiefRepository.findById(thiefId).get();
+        String resultString = thief.toString()+"\n";
        try {
            FileWriter fileWriter = new FileWriter("ThiefDataTableDownload",true);
-           fileWriter.write(thief.toString());
+           fileWriter.write(resultString);
            fileWriter.flush();
            fileWriter.close();
        } catch (IOException e) {
@@ -3228,6 +3246,226 @@ sendMessage.setText(const_text.getThiefId());
                ex.printStackTrace();
            }
            throw new RuntimeException(e);
+       }
+   }
+   public void turnList(boolean flag, Message message) {
+       int state = customerRepository.findById(message.getChatId()).get().getThiefListState();
+       String list = "";
+       String newStr = "";
+       String resultStr = "";
+       if (flag) {
+           state -= 1;
+           if (state == 0) {
+
+           } else {
+               try {
+                   FileReader fileReader = new FileReader("ThiefDataTableDownload");
+                   BufferedReader br = new BufferedReader(fileReader);
+                   String mess="";
+                   for (int i = 0; i < state * 10; i++) {
+                       if(i>= (state-1)* 10)
+                       list += br.readLine();
+                       else mess+=br.readLine();
+                   }
+               } catch (FileNotFoundException e) {
+                   throw new RuntimeException(e);
+               } catch (IOException e) {
+                   throw new RuntimeException(e);
+               }
+               CustomerActions customerActions = new CustomerActions(customerRepository);
+               newStr = thiefRow(list,state);
+               resultStr = customerActions.getThiefList(newStr);
+               Customer customer = customerRepository.findById(message.getChatId()).get();
+               customer.setThiefListState(state);
+               customerRepository.save(customer);
+               InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+               List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+               List<InlineKeyboardButton> row_inline = new ArrayList<>();
+               var leftButton = new InlineKeyboardButton();
+               leftButton.setText(const_text.getLeftSide());
+               leftButton.setCallbackData("LEFT");
+               var rightButton = new InlineKeyboardButton();
+               rightButton.setText(const_text.getRightSide());
+               rightButton.setCallbackData("RIGHT");
+               row_inline.add(leftButton);
+               row_inline.add(rightButton);
+               rows_inline.add(row_inline);
+               inline_keybord.setKeyboard(rows_inline);
+               EditMessageText editMessageText = new EditMessageText();
+               editMessageText.setText(resultStr);
+               editMessageText.setMessageId(customerRepository.findById(message.getChatId()).get().getMessageThiefID());
+               editMessageText.setChatId(message.getChatId());
+               editMessageText.setReplyMarkup(inline_keybord);
+               try {
+                   // Send the message
+                   execute(editMessageText);
+               } catch (TelegramApiException ex) {
+                   ex.printStackTrace();
+               }
+           }
+
+       } else {
+           state += 1;
+           try {
+               FileReader fileReader = new FileReader("ThiefDataTableDownload");
+               BufferedReader br = new BufferedReader(fileReader);
+               String mess="";
+               for (int i = 0; i < (state + 1) * 10; i++) {
+                   if(i>=(state-1) * 10)
+                   list += br.readLine();
+                   else mess+=br.readLine();
+               }
+               if(list.equals("nullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnull")){
+
+               }else {
+                   CustomerActions customerActions = new CustomerActions(customerRepository);
+                   newStr = thiefRow(list,state);
+                   resultStr = customerActions.getThiefList(newStr);
+                   InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+                   List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+                   List<InlineKeyboardButton> row_inline = new ArrayList<>();
+                   var leftButton = new InlineKeyboardButton();
+                   leftButton.setText(const_text.getLeftSide());
+                   leftButton.setCallbackData("LEFT");
+                   var rightButton = new InlineKeyboardButton();
+                   rightButton.setText(const_text.getRightSide());
+                   rightButton.setCallbackData("RIGHT");
+                   row_inline.add(leftButton);
+                   row_inline.add(rightButton);
+                   rows_inline.add(row_inline);
+                   inline_keybord.setKeyboard(rows_inline);
+                   Customer customer = customerRepository.findById(message.getChatId()).get();
+                   customer.setThiefListState(state);
+                   customerRepository.save(customer);
+
+                   EditMessageText editMessageText = new EditMessageText();
+                   editMessageText.setText(resultStr);
+                   editMessageText.setMessageId(customerRepository.findById(message.getChatId()).get().getMessageThiefID());
+                   editMessageText.setChatId(message.getChatId());
+                   editMessageText.setReplyMarkup(inline_keybord);
+                   try {
+                       // Send the message
+                       execute(editMessageText);
+                   } catch (TelegramApiException ex) {
+                       ex.printStackTrace();
+                   }
+               }
+           } catch (FileNotFoundException e) {
+               throw new RuntimeException(e);
+           } catch (IOException e) {
+               throw new RuntimeException(e);
+           }
+       }
+   }
+    public String thiefRow(String list, int state){
+        String resultString = "";
+        long thiefID=0;
+        String name="";
+        String Surname="";
+        String nick="";
+        short count = 0;
+        int k=state*10-9;
+        char[]symbols=list.toCharArray();
+        for(int i=0; i<list.length();i++){
+            if(symbols[i]=='=') {
+                i++;
+                while(symbols[i]!=',') {
+                    if (count == 0) {
+                        thiefID += symbols[i];
+                    } else if (count == 1) {
+                        name+=symbols[i];
+                    } else if (count == 2) {
+                        Surname+=symbols[i];
+                    } else if (count == 3) {
+                        nick +=symbols[i];
+                    }
+                    i++;
+                }
+                count+=1;
+                if(count>3){
+                    resultString+="\n"+k+")"+name + " "+ Surname+" "+nick;
+                    thiefID = 0;
+                    name = "";
+                    Surname="";
+                    nick="";
+                    count=0;
+                    k++;
+                }
+            }
+        }
+        return resultString;
+    }
+   public void removeLineFromFile(Message message){
+        String fileName = "ThiefDataTableDownload";
+       // строка, которую нужно удалить
+       String thiefId = message.getText();
+       String lineToRemove="";
+       try {
+            lineToRemove = thiefRepository.findById(Long.valueOf(thiefId)).get().toString();
+       }catch(Exception ex){
+           SendMessage sendMessage= new SendMessage();
+           sendMessage.setText("Не знайдено такого ID");
+           sendMessage.setChatId(message.getChatId());
+           try {
+               // Send the message
+               execute(sendMessage);
+           } catch (TelegramApiException e) {
+               e.printStackTrace();
+           }
+           ex.printStackTrace();
+       }
+       try {
+           // создаем временный файл
+           File tempFile = new File("temp.txt");
+           BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+           // читаем исходный файл
+           BufferedReader reader = new BufferedReader(new FileReader(fileName));
+           String currentLine;
+           while ((currentLine = reader.readLine()) != null) {
+               // если текущая строка не равна удаляемой
+               // записываем ее во временный файл
+               if (!currentLine.equals(lineToRemove)) {
+                   writer.write(currentLine + System.getProperty("line.separator"));
+               }
+           }
+           // закрываем ридер и писатель
+           reader.close();
+           writer.close();
+           // удаляем исходный файл
+           File oldFile = new File(fileName);
+           oldFile.delete();
+           // переименовываем временный файл в исходное имя файла
+           tempFile.renameTo(oldFile);
+           SendMessage sendMessage= new SendMessage();
+           sendMessage.setText("З файлу теж все видалилось");
+           sendMessage.setChatId(message.getChatId());
+           try {
+               // Send the message
+               execute(sendMessage);
+           } catch (TelegramApiException ex) {
+               ex.printStackTrace();
+           }
+       } catch (IOException ex) {
+           SendMessage sendMessage= new SendMessage();
+           sendMessage.setText("Помилка з видаленням з файлу!!!!");
+           sendMessage.setChatId(message.getChatId());
+           try {
+               // Send the message
+               execute(sendMessage);
+           } catch (TelegramApiException e) {
+               e.printStackTrace();
+           }
+       }
+   }
+   public void setAdminToAddThief(Update update){
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+        sendMessage.setText(const_text.getSetMe());
+       try {
+           // Send the message
+           execute(sendMessage);
+       } catch (TelegramApiException e) {
+           e.printStackTrace();
        }
    }
 }

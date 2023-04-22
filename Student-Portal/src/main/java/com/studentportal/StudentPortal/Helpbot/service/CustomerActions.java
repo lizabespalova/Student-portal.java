@@ -112,7 +112,16 @@ public class CustomerActions {
     public String set_in_group_info_tostr(){
         return set_in_group_info().toString();
     }
-
+    public StringBuilder setThiefList(String list){
+        StringBuilder sb = new StringBuilder();
+        sb.append(constText.getThiefListToAppand());
+        sb.append("\n");
+        sb.append(list);
+        return sb;
+    }
+    public String getThiefList(String list){
+        return setThiefList(list).toString();
+    }
 }
 //        if(photo_url!=null){
 //            SendMessage sendMessage = new SendMessage();

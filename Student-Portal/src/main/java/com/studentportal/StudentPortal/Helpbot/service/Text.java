@@ -66,6 +66,10 @@ public class Text {
     private final String addThiefNick = ("Вкажіть нік шахрая");
     private final String readyThief = ("Шахрая добавлено");
     private final String checkThief=("Перевірити виконавця на шахрая");
+    private final String thiefListToAppand = "Список шахраїв: ";
+    private final String leftSide = EmojiParser.parseToUnicode(":arrow_left:");
+    private final String rightSide = EmojiParser.parseToUnicode(":arrow_right:");
+    private final String setMe = EmojiParser.parseToUnicode("Для того, щоб додати людину до шахрайника, вам потрібно спочатку це довести. Напишіть адміністрації, для доведення шахрайства (фото, скріни, голосові повідомлення та ін.)\nАдміністрація: @lizabespalova");
     public Text() {
 
     }
