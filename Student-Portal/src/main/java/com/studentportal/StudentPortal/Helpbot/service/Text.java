@@ -56,8 +56,8 @@ public class Text {
     private final String byeTxtPerformer =EmojiParser.parseToUnicode("Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slight_smile: ");
     private final String cleaning = ("17032004adminLiza");
     private final String thiefMenu = ("Оберіть, будь ласка, дію:");
-    private final String thiefList = ("Показати список шахраїв");
-    private final String thiefAdd = ("Поскаржитися");
+    private final String thiefList = ("Список");
+    private final String thiefAdd = ("Скарга");
     private final String thiefId = ("Спочатку введи id");
     private final String deleteThiefText = ("Для видалення шахрая з бази, введи його ID");
     private final String deleteThief = ("Видалити");
@@ -65,11 +65,14 @@ public class Text {
     private final String addThiefName = ("Вкажіть ім'я шахрая");
     private final String addThiefNick = ("Вкажіть нік шахрая");
     private final String readyThief = ("Шахрая добавлено");
-    private final String checkThief=("Перевірити виконавця на шахрая");
+    private final String checkThief=("Перевірка виконавця");
     private final String thiefListToAppand = "Список шахраїв: ";
     private final String leftSide = EmojiParser.parseToUnicode(":arrow_left:");
     private final String rightSide = EmojiParser.parseToUnicode(":arrow_right:");
     private final String setMe = EmojiParser.parseToUnicode("Для того, щоб додати людину до шахрайника, вам потрібно спочатку це довести. Напишіть адміністрації, для доведення шахрайства (фото, скріни, голосові повідомлення та ін.)\nАдміністрація: @lizabespalova");
+    private final String thiefCheck = EmojiParser.parseToUnicode("Для того, щоб перевірити чи є ваш виконавець шахраєм, просто перешліть його будь-яке смс сюди.");
+    private final String thiefExists = EmojiParser.parseToUnicode("На жаль, ця людина є у списках шахраїв. Не рекомендовано з нею продовжувати працю.");
+    private final String thiefDoesntExists = EmojiParser.parseToUnicode("Людина раніше не була схоплена за шахрайство");
     public Text() {
 
     }
