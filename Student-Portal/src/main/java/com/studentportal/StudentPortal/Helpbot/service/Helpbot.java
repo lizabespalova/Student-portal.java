@@ -385,15 +385,21 @@ public class Helpbot extends TelegramLongPollingBot {
                             } catch (TelegramApiException e) {
                                 e.printStackTrace();
                             }
-
-                            Rooms rooms = new Rooms();
-                            rooms.setIsFree(true);
-                            rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
-                            rooms.setRoomNumber(roomsRepository.findById(i+1).get().getRoomNumber());
+//редагуємо код
+                            Rooms rooms = roomsRepository.findById(i+1).get();
                             rooms.setChatLink(newChatLink);
+                            rooms.setIsFree(true);
                             rooms.setStateInChat(0);
                             rooms.setFollowing(0);
                             roomsRepository.save(rooms);
+//                            Rooms rooms = new Rooms();
+//                            rooms.setIsFree(true);
+//                            rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
+//                            rooms.setRoomNumber(roomsRepository.findById(i+1).get().getRoomNumber());
+//                            rooms.setChatLink(newChatLink);
+//                            rooms.setStateInChat(0);
+//                            rooms.setFollowing(0);
+//                            roomsRepository.save(rooms);
                             break;
                         }
                     }
@@ -418,7 +424,7 @@ public class Helpbot extends TelegramLongPollingBot {
             }else if(messagetext.equals("THIEFADD")){
                 setAdminToAddThief(update);
             }else if(messagetext.equals("THIEFCHECK")){
-
+             setThiefCheck(update);
             }else if(messagetext.equals("LEFT")){
              turnList(true, update.getCallbackQuery().getMessage());
             }else if(messagetext.equals("RIGHT")){
@@ -513,6 +519,10 @@ public class Helpbot extends TelegramLongPollingBot {
 
                 }
             }
+            else if (message.getForwardFrom()!=null) {
+                if(customerRepository.findById(message.getFrom().getId()).get().getThiefListState()==50)
+                 checkThiefFromCustomer(message);
+            }
         }
 
         if(message!=null){
@@ -550,23 +560,29 @@ public class Helpbot extends TelegramLongPollingBot {
             }
             else if (user_sms.equals(const_text.getEnd_text())) {
                 set_main_menu(String.valueOf(message.getChatId()), message);
-                Customer customer = new Customer();
-                customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-                customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-                customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-                customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-                customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+                //редагування коду
+                Customer customer = customerRepository.findById(message.getChatId()).get();
                 customer.setAgreementsState(true);
-                customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-                customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
-                customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
-                customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-                customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
-                customer.setState(customerRepository.findById(message.getChatId()).get().getState());
-                customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
                 customer.setCheck_state(true);
                 customer.setPriceFlag(1);
                 customerRepository.save(customer);
+//                Customer customer = new Customer();
+//                customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//                customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//                customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//                customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//                customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//                customer.setAgreementsState(true);
+//                customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//                customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+//                customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+//                customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//                customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+//                customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+//                customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//                customer.setCheck_state(true);
+//                customer.setPriceFlag(1);
+//                customerRepository.save(customer);
                 /* *//*check_state*//* = true;*/
             }
             else if (user_sms.equals(const_text.getReady_text()) && customerRepository.findById(message.getChatId()).get().getState().equals(quiz.TEXTDESCRIPTION.toString())) {
@@ -603,21 +619,25 @@ public class Helpbot extends TelegramLongPollingBot {
                /* List photo_list = new ArrayList();
                 List file_list=new ArrayList<>();
                 save_new_links(photo_list, file_list, message);*/
-                Customer customer = new Customer();
-                customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-                customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-                customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-                customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-                customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+                //редагування коду
+                Customer customer = customerRepository.findById(message.getChatId()).get();
                 customer.setAgreementsState(true);
-                customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-                customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-                customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
-                customer.setState(customerRepository.findById(message.getChatId()).get().getState());
-                customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
-                customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
-                customer.setPriceFlag(customerRepository.findById(message.getChatId()).get().getPriceFlag());
                 customerRepository.save(customer);
+//                Customer customer = new Customer();
+//                customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//                customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//                customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//                customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//                customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//                customer.setAgreementsState(true);
+//                customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//                customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//                customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+//                customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+//                customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//                customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
+//                customer.setPriceFlag(customerRepository.findById(message.getChatId()).get().getPriceFlag());
+//                customerRepository.save(customer);
                 set_file_description(message.getChatId(), message);
                 set_ready_button(String.valueOf(message.getChatId()));
             }
@@ -687,18 +707,24 @@ public class Helpbot extends TelegramLongPollingBot {
                             try {
                                 boolean check = check_customers_price(user_sms, message);
                                 if(check){
-                                    Rooms rooms = new Rooms();
-                                    rooms.setRoomNumber(roomsRepository.findById(roomNumb).get().getRoomNumber());
-                                    rooms.setIsFree(roomsRepository.findById(roomNumb).get().isIsFree());
-                                    rooms.setChatLink(roomsRepository.findById(roomNumb).get().getChatLink());
-                                    rooms.setCustomerID(roomsRepository.findById(roomNumb).get().getCustomerID());
-                                    rooms.setDate(roomsRepository.findById(roomNumb).get().getDate());
-                                    rooms.setPayload(roomsRepository.findById(roomNumb).get().getPayload());
-                                    rooms.setPerformerID(roomsRepository.findById(roomNumb).get().getPerformerID());
-                                    rooms.setPostId(roomsRepository.findById(roomNumb).get().getPostId());
+                                    //редагування коду
+                                    Rooms rooms = roomsRepository.findById(roomNumb).get();
                                     rooms.setPrice(Integer.valueOf(user_sms));
-                                    rooms.setRoomID(roomsRepository.findById(roomNumb).get().getRoomID());
                                     rooms.setStateInChat(1);
+                                    roomsRepository.save(rooms);
+//                                    Rooms rooms = new Rooms();
+//                                    rooms.setRoomNumber(roomsRepository.findById(roomNumb).get().getRoomNumber());
+//                                    rooms.setIsFree(roomsRepository.findById(roomNumb).get().isIsFree());
+//                                    rooms.setChatLink(roomsRepository.findById(roomNumb).get().getChatLink());
+//                                    rooms.setCustomerID(roomsRepository.findById(roomNumb).get().getCustomerID());
+//                                    rooms.setDate(roomsRepository.findById(roomNumb).get().getDate());
+//                                    rooms.setPayload(roomsRepository.findById(roomNumb).get().getPayload());
+//                                    rooms.setPerformerID(roomsRepository.findById(roomNumb).get().getPerformerID());
+//                                    rooms.setPostId(roomsRepository.findById(roomNumb).get().getPostId());
+//                                    rooms.setPrice(Integer.valueOf(user_sms));
+//                                    rooms.setRoomID(roomsRepository.findById(roomNumb).get().getRoomID());
+//                                    rooms.setStateInChat(1);
+//                                    roomsRepository.save(rooms);
                                 }
 //                                price = user_sms;
                             } catch (IOException e) {
@@ -709,7 +735,11 @@ public class Helpbot extends TelegramLongPollingBot {
                             for(int i=0; i<roomsRepository.count(); i++){
                                 if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChat().getId())&&roomsRepository.findById(i+1).get().getFollowing()==2){
                                     String payload = roomsRepository.findById(i+1).get().getPayload();
-                                    Purchase purchase = new Purchase();
+                                    //редагування коду
+                                    Purchase purchase = purchaseRepository.findById(payload).get();
+                                    purchase.setPerformerCard(Long.valueOf(user_sms));
+                                    purchaseRepository.save(purchase);
+                                    /*Purchase purchase = new Purchase();
                                     purchase.setPayloadID(purchaseRepository.findById(payload).get().getPayloadID());
                                     purchase.setRoomID(purchaseRepository.findById(payload).get().getRoomID());
                                     purchase.setCustomerID(purchaseRepository.findById(payload).get().getCustomerID());
@@ -719,7 +749,7 @@ public class Helpbot extends TelegramLongPollingBot {
                                     purchase.setPriceToPerformer(purchaseRepository.findById(payload).get().getPriceToPerformer());
                                     purchase.setFlag(purchaseRepository.findById(payload).get().isFlag());
                                     purchase.setPerformerCard(Long.valueOf(user_sms));
-                                    purchaseRepository.save(purchase);
+                                    purchaseRepository.save(purchase);*/
                                     checkCard(message);
                                     break;
                                 }
@@ -758,23 +788,29 @@ public class Helpbot extends TelegramLongPollingBot {
                         } else {
                             set_fix_price_menu(String.valueOf(message.getChatId()), message);
                         }
-                        Customer customer = new Customer();
-                        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-                        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-                        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-                        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-                        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+                        //редагування коду
+                        Customer customer = customerRepository.findById(message.getChatId()).get();
                         customer.setAgreementsState(true);
-                        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-                        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
-                        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
-                        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-                        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
-                        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
-                        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
                         customer.setCheck_state(false);
                         customer.setPriceFlag(1);
                         customerRepository.save(customer);
+//                        Customer customer = new Customer();
+//                        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//                        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//                        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//                        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//                        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//                        customer.setAgreementsState(true);
+//                        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//                        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+//                        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+//                        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//                        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+//                        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+//                        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//                        customer.setCheck_state(false);
+//                        customer.setPriceFlag(1);
+//                        customerRepository.save(customer);
 //                        for (int i = 0; i < roomsRepository.count(); i++) {
 //                            if (message.getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
 //                                rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
@@ -839,23 +875,29 @@ if(user_sms.matches("^-?\\d+$")){
             switch (user_sms) {
                     case "/start": {
                         set_main_menu(String.valueOf(message.getChatId()),message);
-                        Customer customer = new Customer();
-                        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-                        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-                        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-                        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-                        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+                        //редагування коду
+                        Customer customer = customerRepository.findById(message.getChatId()).get();
                         customer.setAgreementsState(true);
-                        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-                        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
-                        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
-                        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-                        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
-                        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
-                        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
                         customer.setCheck_state(true);
                         customer.setPriceFlag(1);
                         customerRepository.save(customer);
+//                        Customer customer = new Customer();
+//                        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//                        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//                        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//                        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//                        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//                        customer.setAgreementsState(true);
+//                        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//                        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+//                        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+//                        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//                        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+//                        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+//                        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//                        customer.setCheck_state(true);
+//                        customer.setPriceFlag(1);
+//                        customerRepository.save(customer);
                         break;
                     }
                 }
@@ -895,6 +937,7 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void set_subject_menu(String chatId, Message message){
       /*  const_text = new Text();*/
         SendMessage main_menu_sms = new SendMessage();
@@ -902,7 +945,6 @@ if(user_sms.matches("^-?\\d+$")){
         main_menu_sms.setText("Обери галузь:");
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
-
 
 
         List<InlineKeyboardButton> row_inline=new ArrayList<>();
@@ -956,23 +998,28 @@ if(user_sms.matches("^-?\\d+$")){
        /* quiz= quiz.MAINMENU;*/
 //        save(message, quiz.MAINMENU.toString());
         /*customerData=new CustomerData();*/
-        Customer customer = new Customer();
-        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        Customer customer = customerRepository.findById(message.getChatId()).get();
         customer.setAgreementsState(true);
-        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
-        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
-        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
-        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
         customer.setState(quiz.MAINMENU.toString());
         customer.setPriceFlag(0);
-        customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
         customerRepository.save(customer);
+//        Customer customer = new Customer();
+//        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//        customer.setAgreementsState(true);
+//        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+//        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+//        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//        customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+//        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//        customer.setState(quiz.MAINMENU.toString());
+//        customer.setPriceFlag(0);
+//        customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
+//        customerRepository.save(customer);
         try{
             execute(main_menu_sms);
         }catch(TelegramApiException e){
@@ -1004,13 +1051,19 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void set_text_description(long chatId, Message message){
         SendMessage sendMessage = new SendMessage();
         sendMessage.setText("Опишіть своє завдання (без фото або файлів)");
         sendMessage.setChatId(chatId);
        /* quiz=quiz.SUBJECTMENU;*/
 //        save(message, quiz.SUBJECTMENU.toString());
-        Customer customer = new Customer();
+        Customer customer = customerRepository.findById(message.getChatId()).get();
+        customer.setAgreementsState(true);
+        customer.setCheckDescriptionState(1);
+        customer.setState(quiz.SUBJECTMENU.toString());
+        customerRepository.save(customer);
+        /*      Customer customer = new Customer();
         customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
         customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
         customer.setName(customerRepository.findById(message.getChatId()).get().getName());
@@ -1025,13 +1078,14 @@ if(user_sms.matches("^-?\\d+$")){
         customer.setState(quiz.SUBJECTMENU.toString());
         customer.setPriceFlag(customerRepository.findById(message.getChatId()).get().getPriceFlag());
         customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
-        customerRepository.save(customer);
+        customerRepository.save(customer);*/
         try{
             execute(sendMessage);
         }catch(TelegramApiException e){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void get_text_description(Message message){
 
         String user_text_description = message.getText();
@@ -1040,19 +1094,24 @@ if(user_sms.matches("^-?\\d+$")){
         check.setText(user_text_description);*/
     /* *//*   customerData.setDescription(user_text_description);*//*
         customerRepository.findById(message.getChatId()).get().setDescription(user_text_description);*/
-        Customer customer = new Customer();
-        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        Customer customer = customerRepository.findById(message.getChatId()).get();
         customer.setAgreementsState(true);
-        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
         customer.setDescription(user_text_description);
-        customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
-        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
         customer.setCheckDescriptionState(0);
         customerRepository.save(customer);
+//        Customer customer = new Customer();
+//        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//        customer.setAgreementsState(true);
+//        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//        customer.setDescription(user_text_description);
+//        customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
+//        customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+//        customer.setCheckDescriptionState(0);
+//        customerRepository.save(customer);
         /*check_txt_description=false;*/
 /*
         try{
@@ -1061,13 +1120,18 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }*/
     }
+    //редагування коду
     public void set_file_description(long chatId, Message message){
         SendMessage sendMessage = new SendMessage();
         sendMessage.setText("Якщо є фото або файл, то відправте");
         sendMessage.setChatId(chatId);
 //        save(message, quiz.TEXTDESCRIPTION.toString());
        /* quiz=quiz.TEXTDESCRIPTION;*/
-        Customer customer = new Customer();
+        Customer customer = customerRepository.findById(message.getChatId()).get();
+        customer.setAgreementsState(true);
+        customer.setState(quiz.TEXTDESCRIPTION.toString());
+        customerRepository.save(customer);
+      /*  Customer customer = new Customer();
         customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
         customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
         customer.setName(customerRepository.findById(message.getChatId()).get().getName());
@@ -1083,7 +1147,7 @@ if(user_sms.matches("^-?\\d+$")){
         customer.setState(quiz.TEXTDESCRIPTION.toString());
         customer.setPriceFlag(customerRepository.findById(message.getChatId()).get().getPriceFlag());
         customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
-        customerRepository.save(customer);
+        customerRepository.save(customer);*/
         try{
             execute(sendMessage);
         }catch(TelegramApiException e){
@@ -1113,12 +1177,20 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void get_file_description(Update update) throws IOException {
         String file_id = update.getMessage().getDocument().getFileId();
         String urlString = "https://api.telegram.org/bot5814824968:AAEZRhb1emGeCJJ2cgDFTXwRF-d4fdbw1w8/sendDocument?chat_id=@vedmedik_base&document="+file_id;
         String chatId = "@vedmedik_base";
         urlString = String.format(urlString, getBotToken(), chatId, file_id);
-        Customer customer = new Customer();
+        Customer customer = customerRepository.findById(update.getMessage().getChatId()).get();
+        customer.setAgreementsState(true);
+        List fileList = customerRepository.findById(update.getMessage().getChatId()).get().getFileLink();
+        fileList.add(urlString);
+        customer.setFileLink(fileList);
+        customer.setPriceFlag(0);
+        customerRepository.save(customer);
+       /* Customer customer = new Customer();
         customer.setChatID(customerRepository.findById(update.getMessage().getChatId()).get().getChatID());
         customer.setSurname(customerRepository.findById(update.getMessage().getChatId()).get().getSurname());
         customer.setName(customerRepository.findById(update.getMessage().getChatId()).get().getName());
@@ -1136,8 +1208,9 @@ if(user_sms.matches("^-?\\d+$")){
         customer.setPriceFlag(0);
         customer.setCheck_state(customerRepository.findById(update.getMessage().getChatId()).get().isCheck_state());
         customer.setCheckDescriptionState(customerRepository.findById(update.getMessage().getChatId()).get().getCheckDescriptionState());
-        customerRepository.save(customer);
+        customerRepository.save(customer);*/
     }
+    //редагування коду
     public void set_file_to_channel_and_return_link(Message message)throws IOException{
         List file_url_list = new ArrayList();
         for (int j=0; j<customerRepository.findById(message.getChatId()).get().getFileLink().size();j++) {
@@ -1172,30 +1245,44 @@ if(user_sms.matches("^-?\\d+$")){
             String url = "https://t.me/vedmedik_base/" + digits;
             file_url_list.add(url);
         }
-       /* customerData.setFile_url(file_url_list);*/
-        Customer customer = new Customer();
-        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        Customer customer = customerRepository.findById(message.getChatId()).get();
         customer.setAgreementsState(true);
-        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
         customer.setFileLink(file_url_list);
-        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
-        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
-        customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
-        customer.setState(/*customerRepository.findById(message.getChatId()).get().getState()*/quiz.PRICE.toString());
-       /* customerRepository.saveAll(file_url_list);*/
+        customer.setState(quiz.PRICE.toString());
+        customerRepository.saveAll(file_url_list);
         customerRepository.save(customer);
+       /* customerData.setFile_url(file_url_list);*/
+//        Customer customer = new Customer();
+//        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//        customer.setAgreementsState(true);
+//        customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//        customer.setFileLink(file_url_list);
+//        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+//        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//        customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
+//        customer.setState(/*customerRepository.findById(message.getChatId()).get().getState()*/quiz.PRICE.toString());
+//       /* customerRepository.saveAll(file_url_list);*/
+//        customerRepository.save(customer);
     }
+    //редагування коду
     public void get_photo_description(Update update) {
         String photo_id=update.getMessage().getPhoto().get(3).getFileId();
         String urlString = "https://api.telegram.org/bot5814824968:AAEZRhb1emGeCJJ2cgDFTXwRF-d4fdbw1w8/sendPhoto?chat_id=@vedmedik_base&photo="+photo_id;
         String chatId = "@vedmedik_base";
         urlString = String.format(urlString, getBotToken(), chatId, photo_id);
-        Customer customer = new Customer();
+        Customer customer = customerRepository.findById(update.getMessage().getChatId()).get();
+        customer.setAgreementsState(true);
+        List photoList = customerRepository.findById(update.getMessage().getChatId()).get().getPhotoLink();
+        photoList.add(urlString);
+        customer.setPhotoLink(photoList);
+        customer.setPriceFlag(0);
+        customerRepository.save(customer);
+     /*   Customer customer = new Customer();
         customer.setChatID(customerRepository.findById(update.getMessage().getChatId()).get().getChatID());
         customer.setSurname(customerRepository.findById(update.getMessage().getChatId()).get().getSurname());
         customer.setName(customerRepository.findById(update.getMessage().getChatId()).get().getName());
@@ -1213,8 +1300,9 @@ if(user_sms.matches("^-?\\d+$")){
         customer.setCheckDescriptionState(customerRepository.findById(update.getMessage().getChatId()).get().getCheckDescriptionState());
         customer.setPriceFlag(0);
         customer.setCheck_state(customerRepository.findById(update.getMessage().getChatId()).get().isCheck_state());
-        customerRepository.save(customer);
+        customerRepository.save(customer);*/
     }
+    //редагування коду
     public void set_photo_to_channel_and_return_link(Message message)throws IOException{
         List photo_url_list = new ArrayList();
          for (int j=0; j<customerRepository.findById(message.getChatId()).get().getPhotoLink().size();j++) {
@@ -1250,7 +1338,11 @@ if(user_sms.matches("^-?\\d+$")){
 
          }
        /* customerData.setPhoto_url(photo_url_list);*/
-        Customer customer = new Customer();
+        Customer customer = customerRepository.findById(message.getChatId()).get();
+        customer.setAgreementsState(true);
+        customer.setPhotoLink(photo_url_list);
+        customerRepository.save(customer);
+        /*Customer customer = new Customer();
         customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
         customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
         customer.setName(customerRepository.findById(message.getChatId()).get().getName());
@@ -1264,7 +1356,7 @@ if(user_sms.matches("^-?\\d+$")){
         customer.setState(customerRepository.findById(message.getChatId()).get().getState());
         customer.setPhotoLink(photo_url_list);
         customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
-        customerRepository.save(customer);
+        customerRepository.save(customer);*/
     }
     public void set_price_description(String chatId, Message message){
         SendMessage main_menu_sms = new SendMessage();
@@ -1272,8 +1364,6 @@ if(user_sms.matches("^-?\\d+$")){
         main_menu_sms.setText("Укажіть як ви хочете зробити угоду - з фіксованою ціною або домовитися з виконавцем:");
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
-
-
 
         List<InlineKeyboardButton> row_inline=new ArrayList<>();
         var fix_Button = new InlineKeyboardButton();
@@ -1308,8 +1398,8 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public boolean debug_fix_price(String user_price, long chatId, Message message){
-
         try {
             int check_num = Integer.parseInt(user_price);
             if(check_num<10||check_num>10000){
@@ -1329,7 +1419,13 @@ if(user_sms.matches("^-?\\d+$")){
                 sendMessage.setText("Ціну зафіксовано, вона дорівнює: " + check_num);
                 sendMessage.setChatId(chatId);
                 /* customerData.setPrice(check_num);*/
-                Customer customer = new Customer();
+                Customer customer = customerRepository.findById(message.getChatId()).get();
+                customer.setAgreementsState(true);
+                customer.setPrice(String.valueOf(check_num));
+                customer.setCheck_state(true);
+                customer.setState(String.valueOf(quiz.FIXPRICE));
+                customerRepository.save(customer);
+               /* Customer customer = new Customer();
                 customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
                 customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
                 customer.setName(customerRepository.findById(message.getChatId()).get().getName());
@@ -1343,7 +1439,7 @@ if(user_sms.matches("^-?\\d+$")){
                 customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
                 customer.setCheck_state(true);
                 customer.setState(String.valueOf(quiz.FIXPRICE));
-                customerRepository.save(customer);
+                customerRepository.save(customer);*/
                 /*quiz=quiz.FIXPRICE;*/
 
             try {
@@ -1369,6 +1465,7 @@ if(user_sms.matches("^-?\\d+$")){
         }
         return true;
     }
+    //редагування коду
     public void set_agreement_price_menu(String chatId, Message message){
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
@@ -1376,21 +1473,27 @@ if(user_sms.matches("^-?\\d+$")){
         main_menu_sms.setText(text);
         text = "Домовлена";
      /*   quiz=quiz.AGREEMENTPRICE;*/
-        Customer customer = new Customer();
-        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+        Customer customer = customerRepository.findById(message.getChatId()).get();
         customer.setAgreementsState(true);
-        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
-        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
         customer.setPrice(text);
-        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
         customer.setState(String.valueOf(quiz.FIXPRICE));
         customer.setCheck_state(true);
         customerRepository.save(customer);
+//        Customer customer = new Customer();
+//        customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//        customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//        customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//        customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//        customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//        customer.setAgreementsState(true);
+//        customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//        customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+//        customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+//        customer.setPrice(text);
+//        customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//        customer.setState(String.valueOf(quiz.FIXPRICE));
+//        customer.setCheck_state(true);
+//        customerRepository.save(customer);
        /* quiz=quiz.FIXPRICE;*/
         try {
             // Send the message
@@ -1399,6 +1502,7 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void set_post(String chatId, int check, long messageID, Message message){
         CustomerActions customerActions = new CustomerActions(customerRepository);
         String post;
@@ -1408,24 +1512,28 @@ if(user_sms.matches("^-?\\d+$")){
             sendMessage.setParseMode("HTML");
             sendMessage.setChatId(chatId);
             sendMessage.setText(post);
-
-            Customer customer = new Customer();
-            customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-            customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-            customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-            customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-            customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+            Customer customer = customerRepository.findById(message.getChatId()).get();
             customer.setAgreementsState(true);
-            customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-            customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
-            customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
-            customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-            customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
-            customer.setState(customerRepository.findById(message.getChatId()).get().getState());
-            customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
             customer.setCheck_state(false);
             customer.setPriceFlag(1);
             customerRepository.save(customer);
+//            Customer customer = new Customer();
+//            customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//            customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//            customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//            customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//            customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//            customer.setAgreementsState(true);
+//            customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//            customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+//            customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+//            customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//            customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+//            customer.setState(customerRepository.findById(message.getChatId()).get().getState());
+//            customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//            customer.setCheck_state(false);
+//            customer.setPriceFlag(1);
+//            customerRepository.save(customer);
             try {
                 // Send the message
                 execute(sendMessage);
@@ -1441,7 +1549,12 @@ if(user_sms.matches("^-?\\d+$")){
             editMessageText.setMessageId((int) messageID);
             editMessageText.setParseMode("HTML");
             editMessageText.setText(post);
-            Customer customer = new Customer();
+            Customer customer = customerRepository.findById(message.getChatId()).get();
+            customer.setAgreementsState(true);
+            customer.setCheck_state(true);
+            customer.setPriceFlag(1);
+            customerRepository.save(customer);
+          /*  Customer customer = new Customer();
             customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
             customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
             customer.setName(customerRepository.findById(message.getChatId()).get().getName());
@@ -1457,7 +1570,7 @@ if(user_sms.matches("^-?\\d+$")){
             customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
             customer.setCheck_state(true);
             customer.setPriceFlag(1);
-            customerRepository.save(customer);
+            customerRepository.save(customer);*/
 
             try {
                 // Send the message
@@ -1497,6 +1610,7 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void set_change_menu(String chatId) {
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
@@ -1517,7 +1631,10 @@ if(user_sms.matches("^-?\\d+$")){
         keyboard.setOneTimeKeyboard(false);
         keyboard.setSelective(true);
         main_menu_sms.setReplyMarkup(keyboard);
-        Customer customer = new Customer();
+        Customer customer = customerRepository.findById(Long.valueOf(chatId)).get();
+        customer.setCheck_state(false);
+        customerRepository.save(customer);
+       /* Customer customer = new Customer();
         customer.setChatID(customerRepository.findById(Long.valueOf(chatId)).get().getChatID());
         customer.setSurname(customerRepository.findById(Long.valueOf(chatId)).get().getSurname());
         customer.setName(customerRepository.findById(Long.valueOf(chatId)).get().getName());
@@ -1533,7 +1650,7 @@ if(user_sms.matches("^-?\\d+$")){
         customer.setCheckDescriptionState(customerRepository.findById(Long.valueOf(chatId)).get().getCheckDescriptionState());
         customer.setPriceFlag(customerRepository.findById(Long.valueOf(chatId)).get().getPriceFlag());
         customer.setCheck_state(false);
-        customerRepository.save(customer);
+        customerRepository.save(customer);*/
         try {
             // Send the message
             execute(main_menu_sms);
@@ -1671,6 +1788,7 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public int  return_chat_link_and_show_sms_in_group(long chatID, Update update){
         int room_num = 0;
         String postUrl = null;
@@ -1680,7 +1798,13 @@ if(user_sms.matches("^-?\\d+$")){
                 room_num = i+1;
                 Date date = new Date();
                 String currentDate = String.valueOf(date);
-                Rooms rooms = new Rooms();
+                Rooms rooms = roomsRepository.findById(i+1).get();
+                rooms.setIsFree(false);
+                rooms.setDate(currentDate);
+                rooms.setFollowing(0);
+                rooms.setCustomerID(update.getCallbackQuery().getMessage().getChatId());
+                roomsRepository.save(rooms);
+                /*Rooms rooms = new Rooms();
                 rooms.setIsFree(false);
                 rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
                 rooms.setRoomNumber(roomsRepository.findById(i+1).get().getRoomNumber());
@@ -1689,7 +1813,7 @@ if(user_sms.matches("^-?\\d+$")){
                 rooms.setDate(currentDate);
                 rooms.setPayload(roomsRepository.findById(i+1).get().getPayload());
                 rooms.setFollowing(0);
-                roomsRepository.save(rooms);
+                roomsRepository.save(rooms);*/
                 break;
             }
         }
@@ -1757,8 +1881,6 @@ if(user_sms.matches("^-?\\d+$")){
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
 
-
-
         List<InlineKeyboardButton> row_inline=new ArrayList<>();
         var registrate_Button = new InlineKeyboardButton();
         registrate_Button.setText(const_text.getWant_registrate());
@@ -1773,8 +1895,13 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void return_chat_link_and_show_sms_for_performer_in_group(String performerID, String postID, int roomID){
-        Rooms rooms = new Rooms();
+        Rooms rooms = roomsRepository.findById(roomID).get();
+        rooms.setPerformerID(Long.valueOf(performerID));
+        rooms.setPostId(Long.valueOf(postID));
+        roomsRepository.save(rooms);
+       /* Rooms rooms = new Rooms();
         rooms.setIsFree(false);
         rooms.setRoomID(roomsRepository.findById(roomID).get().getRoomID());
         rooms.setRoomNumber(roomsRepository.findById(roomID).get().getRoomNumber());
@@ -1785,7 +1912,7 @@ if(user_sms.matches("^-?\\d+$")){
         rooms.setDate(roomsRepository.findById(roomID).get().getDate());
         rooms.setPayload(roomsRepository.findById(roomID).get().getPayload());
         rooms.setFollowing(roomsRepository.findById(roomID).get().getFollowing());
-        roomsRepository.save(rooms);
+        roomsRepository.save(rooms);*/
         String url = roomsRepository.findById(roomID).get().getChatLink();
        CustomerActions customerActions = new CustomerActions(customerRepository);
        SendMessage sendMessage = new SendMessage();
@@ -1867,6 +1994,7 @@ if(user_sms.matches("^-?\\d+$")){
             sb.append(inputLine);
         }*/
     }
+    //редагування коду
     public void fix_finish_text_price_customer(Message message) throws IOException {
         /*Customer customer = new Customer();
         customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
@@ -1888,7 +2016,11 @@ if(user_sms.matches("^-?\\d+$")){
             if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChat().getId())){
 //                customerID = roomsRepository.findById(i+1).get().getCustomerID();
                 roomId = i+1;
-                Rooms rooms=new Rooms();
+                Rooms rooms=roomsRepository.findById(i+1).get();
+                rooms.setFollowing(2);
+                rooms.setStateInChat(0);
+                roomsRepository.save(rooms);
+               /* Rooms rooms=new Rooms();
                 rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
                 rooms.setPostId(roomsRepository.findById(i+1).get().getPostId());
                 rooms.setChatLink(roomsRepository.findById(i+1).get().getChatLink());
@@ -1900,7 +2032,7 @@ if(user_sms.matches("^-?\\d+$")){
                 rooms.setDate(roomsRepository.findById(i+1).get().getDate());
                 rooms.setFollowing(2);
                 rooms.setStateInChat(0);
-                roomsRepository.save(rooms);
+                roomsRepository.save(rooms);*/
                 break;
             }
         }
@@ -1936,6 +2068,7 @@ if(user_sms.matches("^-?\\d+$")){
             sb.append(inputLine);
         }
     }
+    //редагування коду
     public boolean check_customers_price(String user_price, Message message) throws IOException {
         for(int i=0; i<roomsRepository.count(); i++){
             if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChat().getId()) && !message.getFrom().getId().equals(roomsRepository.findById(i+1).get().getCustomerID())/*&&customerRepository.findById(message.getFrom().getId()).get().getPriceFlag() != 1*/){
@@ -1960,10 +2093,13 @@ if(user_sms.matches("^-?\\d+$")){
             try {
                 int intParse =  Integer.parseInt(user_price);
                 sms_to_performer(intParse, message);
-                Rooms rooms = new Rooms();
+             /*   Rooms rooms = new Rooms();*/
                 for (int i = 0; i < roomsRepository.count(); i++) {
                             if (message.getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
-                                rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
+                                Rooms rooms = roomsRepository.findById(i + 1).get();
+                                rooms.setPrice(intParse);
+                                roomsRepository.save(rooms);
+                             /*   rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
                                 rooms.setPostId(roomsRepository.findById(i + 1).get().getPostId());
                                 rooms.setChatLink(roomsRepository.findById(i + 1).get().getChatLink());
                                 rooms.setPerformerID(roomsRepository.findById(i + 1).get().getPerformerID());
@@ -1975,7 +2111,7 @@ if(user_sms.matches("^-?\\d+$")){
                                 rooms.setPayload(roomsRepository.findById(i + 1).get().getPayload());
                                 rooms.setStateInChat(roomsRepository.findById(i + 1).get().getStateInChat());
                                 rooms.setFollowing(roomsRepository.findById(i+1).get().getFollowing());
-                                roomsRepository.save(rooms);
+                                roomsRepository.save(rooms);*/
                                 break;
                             }
                         }
@@ -2053,8 +2189,17 @@ if(user_sms.matches("^-?\\d+$")){
             while ((inputLine = br.readLine()) != null) {
                 sb.append(inputLine);
             }
+            for(int i=0; i<roomsRepository.count();i++){
+                if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChatId())){
+                    Rooms rooms = roomsRepository.findById(i+1).get();
+                    rooms.setStateInChat(1);
+                    roomsRepository.save(rooms);
+                    break;
+                }
+            }
         }
     }
+    //редагування коду
     public void check_performer_return_no(Update update, int user_price)throws IOException{
         long chatID = 0;
         long performerID=0;
@@ -2101,10 +2246,13 @@ if(user_sms.matches("^-?\\d+$")){
             while ((inputLine = br.readLine()) != null) {
                 sb.append(inputLine);
             }
-            Rooms rooms =new Rooms();
+
             for(int i=0;i<roomsRepository.count();i++) {
                 if (update.getCallbackQuery().getMessage().getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
-                    rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
+                    Rooms rooms = roomsRepository.findById(i + 1).get();
+                    rooms.setStateInChat(1);
+                    roomsRepository.save(rooms);
+                  /*  rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
                     rooms.setPostId(roomsRepository.findById(i + 1).get().getPostId());
                     rooms.setChatLink(roomsRepository.findById(i + 1).get().getChatLink());
                     rooms.setPerformerID(roomsRepository.findById(i + 1).get().getPerformerID());
@@ -2116,7 +2264,7 @@ if(user_sms.matches("^-?\\d+$")){
                     rooms.setPayload(roomsRepository.findById(i+1).get().getPayload());
                     rooms.setFollowing(roomsRepository.findById(i+1).get().getFollowing());
                     rooms.setStateInChat(1);
-                    roomsRepository.save(rooms);
+                    roomsRepository.save(rooms);*/
                     break;
                 }
             }
@@ -2134,13 +2282,19 @@ if(user_sms.matches("^-?\\d+$")){
 //            customer.setPostLink(customerRepository.findById(update.getCallbackQuery().getMessage().getFrom().getId()).get().getPostLink());
 //            customer.setState(customerRepository.findById(update.getCallbackQuery().getMessage().getFrom().getId()).get().getState());
 //            customer.setPriceFlag(null);
-
         }
     }
+    //редагування коду
     public void setBranchToTable(Message message, String strsubject){
       /*  User user = message.getFrom();*/
         if(!customerRepository.findById(message.getChatId()).isEmpty()) {
-            Customer customer = new Customer();
+            Customer customer = customerRepository.findById(message.getChatId()).get();
+            customer.setBranch(strsubject);
+            customer.setAgreementsState(true);
+            customer.setCheckDescriptionState(1);
+            customer.setPriceFlag(0);
+            customerRepository.save(customer);
+         /*   Customer customer = new Customer();
             customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
             customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
             customer.setName(customerRepository.findById(message.getChatId()).get().getName());
@@ -2156,7 +2310,7 @@ if(user_sms.matches("^-?\\d+$")){
             customer.setCheckDescriptionState(1);
             customer.setCheck_state(customerRepository.findById(message.getChatId()).get().isCheck_state());
             customer.setPriceFlag(0);
-            customerRepository.save(customer);
+            customerRepository.save(customer);*/
         }/*else{
             register_to_data_base_customer(message);
             Customer customer = new Customer();
@@ -2169,9 +2323,14 @@ if(user_sms.matches("^-?\\d+$")){
             customerRepository.save(customer);
         }*/
     }
+    //редагування коду
     public void setPostLinkToTable(Update update, String postUrl){
         if(!customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).isEmpty()) {
-            Customer customer = new Customer();
+            Customer customer = customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get();
+            customer.setAgreementsState(true);
+            customer.setPostLink(postUrl);
+            customerRepository.save(customer);
+          /*  Customer customer = new Customer();
             customer.setChatID(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getChatID());
             customer.setSurname(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getSurname());
             customer.setName(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getName());
@@ -2186,38 +2345,35 @@ if(user_sms.matches("^-?\\d+$")){
             customer.setCheckDescriptionState(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getCheckDescriptionState());
             customer.setState(customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getState());
             customer.setPostLink(postUrl);
-            customerRepository.save(customer);
-        }/*else{
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(message.getChatId());
-            sendMessage.setText("ERROR");
-            try {
-                // Send the message
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        }*/
+            customerRepository.save(customer);*/
+        }
     }
+    //редагування коду
     public void save(Message message, String state){
         if(!customerRepository.findById(message.getChatId()).isEmpty()) {
-            Customer customer = new Customer();
-            customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
-            customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
-            customer.setName(customerRepository.findById(message.getChatId()).get().getName());
-            customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
-            customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+            Customer customer = customerRepository.findById(message.getChatId()).get();
             customer.setAgreementsState(true);
-            customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
-            customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
-            customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
-            customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
-            customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
-            customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
             customer.setState(state);
             customer.setPriceFlag(0);
             customer.setCheck_state(true);
             customerRepository.save(customer);
+//            Customer customer = new Customer();
+//            customer.setChatID(customerRepository.findById(message.getChatId()).get().getChatID());
+//            customer.setSurname(customerRepository.findById(message.getChatId()).get().getSurname());
+//            customer.setName(customerRepository.findById(message.getChatId()).get().getName());
+//            customer.setUser_nick(customerRepository.findById(message.getChatId()).get().getUser_nick());
+//            customer.setBranch(customerRepository.findById(message.getChatId()).get().getBranch());
+//            customer.setAgreementsState(true);
+//            customer.setDescription(customerRepository.findById(message.getChatId()).get().getDescription());
+//            customer.setFileLink(customerRepository.findById(message.getChatId()).get().getFileLink());
+//            customer.setPhotoLink(customerRepository.findById(message.getChatId()).get().getPhotoLink());
+//            customer.setPrice(customerRepository.findById(message.getChatId()).get().getPrice());
+//            customer.setPostLink(customerRepository.findById(message.getChatId()).get().getPostLink());
+//            customer.setCheckDescriptionState(customerRepository.findById(message.getChatId()).get().getCheckDescriptionState());
+//            customer.setState(state);
+//            customer.setPriceFlag(0);
+//            customer.setCheck_state(true);
+//            customerRepository.save(customer);
         }else{
             Customer customer = new Customer();
             customer.setChatID(message.getChatId());
@@ -2230,6 +2386,7 @@ if(user_sms.matches("^-?\\d+$")){
             customerRepository.save(customer);
         }
     }
+    //редагування коду
     public void sendPayment(Update update) throws TelegramApiException {
         CustomerActions customerActions = new CustomerActions(customerRepository);
         int price = 0;
@@ -2261,7 +2418,10 @@ if(user_sms.matches("^-?\\d+$")){
                         if(roomsRepository.findById(j+1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChatId())){
                             customerId = roomsRepository.findById(j+1).get().getCustomerID();
                             price = roomsRepository.findById(j + 1).get().getPrice();
-                            Rooms rooms = new Rooms();
+                            Rooms rooms = roomsRepository.findById(j + 1).get();
+                            rooms.setPayload(payLoad);
+                            roomsRepository.save(rooms);
+                          /*  Rooms rooms = new Rooms();
                             rooms.setRoomID(roomsRepository.findById(j + 1).get().getRoomID());
                             rooms.setPostId(roomsRepository.findById(j + 1).get().getPostId());
                             rooms.setChatLink(roomsRepository.findById(j + 1).get().getChatLink());
@@ -2274,19 +2434,16 @@ if(user_sms.matches("^-?\\d+$")){
                             rooms.setStateInChat(roomsRepository.findById(j+1).get().getStateInChat());
                             rooms.setFollowing(roomsRepository.findById(i+1).get().getFollowing());
                             rooms.setPayload(payLoad);
-                            roomsRepository.save(rooms);
+                            roomsRepository.save(rooms);*/
                             break;
                         }
                     }
-
                     Purchase purchase = new Purchase();
                     purchase.setPayloadID(payLoad);
                     purchase.setRoomID(update.getCallbackQuery().getMessage().getChatId());
                     purchase.setCustomerID(customerId);
                     purchase.setPerformerID(update.getCallbackQuery().getFrom().getId());
-/*
-                    purchase.setMessageID(purchaseRepository.findById(payLoad).get().getMessageID());
-*/             purchase.setSuccessfulBargain(false);
+                    purchase.setSuccessfulBargain(false);
                     purchase.setPriceToPerformer(0);
                     purchase.setFlag(false);
                     purchaseRepository.save(purchase);
@@ -2294,15 +2451,6 @@ if(user_sms.matches("^-?\\d+$")){
                 else{payLoad = roomsRepository.findById(i+1).get().getPayload();break;}
             }
         }
-
-        /*link:for(int i=0; i<15; i++){
-            payLoad+=sAlphabet[sRandom.nextInt(sLength)];
-            if(purchaseRepository.findById(i+1).get().getPayloadID().equals(payLoad)){
-                continue link;
-            }
-        }
-*/
-
         int finishPrice = customerActions.finish_price_for_customer(price);
         CreateInvoiceLink createInvoiceLink = new CreateInvoiceLink(const_text.getTitle(), const_text.getFormDescription(), roomsRepository.findById(roomId).get().getPayload(), config.getTokenPay(), "UAH",
                 List.of(new LabeledPrice("Вартість", finishPrice * 100)));
@@ -2325,7 +2473,12 @@ if(user_sms.matches("^-?\\d+$")){
         try{
            Message message = execute(main_menu_sms);
           /* int messageId= message.getMessageId();*/
-            Purchase purchase = new Purchase();
+            Purchase purchase = purchaseRepository.findById(payLoad).get();
+            purchase.setMessageID(message.getMessageId());
+            purchase.setPriceToPerformer(0);
+            purchase.setSuccessfulBargain(false);
+            purchaseRepository.save(purchase);
+          /*  Purchase purchase = new Purchase();
             purchase.setPayloadID(purchaseRepository.findById(payLoad).get().getPayloadID());
             purchase.setRoomID(purchaseRepository.findById(payLoad).get().getRoomID());
             purchase.setCustomerID(purchaseRepository.findById(payLoad).get().getCustomerID());
@@ -2334,7 +2487,7 @@ if(user_sms.matches("^-?\\d+$")){
             purchase.setMessageID(message.getMessageId());
             purchase.setPriceToPerformer(0);
             purchase.setSuccessfulBargain(false);
-            purchaseRepository.save(purchase);
+            purchaseRepository.save(purchase);*/
         }catch(TelegramApiException e){
             e.printStackTrace();
         }
@@ -2356,6 +2509,7 @@ if(user_sms.matches("^-?\\d+$")){
             sb.append(inputLine);
         }*/
     }
+    //редагування коду
     public void servePayment(SuccessfulPayment successfulPayment){
         long roomID = 0;
         int price =0;
@@ -2370,7 +2524,12 @@ if(user_sms.matches("^-?\\d+$")){
             }
             CustomerActions customerActions = new CustomerActions(customerRepository);
             int finishPrice = customerActions.finish_price_for_performer(price);
-        Purchase purchase = new Purchase();
+        Purchase purchase = purchaseRepository.findById(successfulPayment.getInvoicePayload()).get();
+        purchase.setFlag(true);
+        purchase.setPriceToPerformer(finishPrice);
+        purchase.setChargeID(successfulPayment.getProviderPaymentChargeId());
+        purchaseRepository.save(purchase);
+       /* Purchase purchase = new Purchase();
         purchase.setPayloadID(purchaseRepository.findById(successfulPayment.getInvoicePayload()).get().getPayloadID());
         purchase.setRoomID(purchaseRepository.findById(successfulPayment.getInvoicePayload()).get().getRoomID());
         purchase.setCustomerID(purchaseRepository.findById(successfulPayment.getInvoicePayload()).get().getCustomerID());
@@ -2380,11 +2539,15 @@ if(user_sms.matches("^-?\\d+$")){
         purchase.setChargeID(successfulPayment.getProviderPaymentChargeId());
         purchase.setMessageID(purchaseRepository.findById(successfulPayment.getInvoicePayload()).get().getMessageID());
         purchase.setSuccessfulBargain(purchaseRepository.findById(successfulPayment.getInvoicePayload()).get().isSuccessfulBargain());
-        purchaseRepository.save(purchase);
+        purchaseRepository.save(purchase);*/
         for(int i=0; i<roomsRepository.count();i++) {
             if (roomsRepository.findById(i + 1).get().getPayload() != null) {
                 if (roomsRepository.findById(i + 1).get().getPayload().equals(successfulPayment.getInvoicePayload())) {
-                    Rooms rooms = new Rooms();
+                    Rooms rooms = roomsRepository.findById(i + 1).get();
+                    rooms.setStateInChat(1);
+                    rooms.setFollowing(1);
+                    roomsRepository.save(rooms);
+                 /*   Rooms rooms = new Rooms();
                     rooms.setIsFree(roomsRepository.findById(i + 1).get().isIsFree());
                     rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
                     rooms.setRoomNumber(roomsRepository.findById(i + 1).get().getRoomNumber());
@@ -2396,7 +2559,7 @@ if(user_sms.matches("^-?\\d+$")){
                     rooms.setPayload(roomsRepository.findById(i + 1).get().getPayload());
                     rooms.setStateInChat(1);
                     rooms.setFollowing(1);
-                    roomsRepository.save(rooms);
+                    roomsRepository.save(rooms);*/
                     break;
                 }
             }
@@ -2567,9 +2730,6 @@ if(user_sms.matches("^-?\\d+$")){
         sendMessage.setText("ви не домовились, ви впевнені, що хочете завершити угоду?");
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
-
-
-
         List<InlineKeyboardButton> row_inline=new ArrayList<>();
         var yesButton = new InlineKeyboardButton();
         yesButton.setText("Так");
@@ -2589,6 +2749,7 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void setSurveyOrEnd(Update update){
         String payloadID="";
         int roomID=0;
@@ -2607,25 +2768,29 @@ if(user_sms.matches("^-?\\d+$")){
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(update.getCallbackQuery().getMessage().getChat().getId());
             sendMessage.setText("Користувач, оцініть , будь ласка виконавця за шкалою від 0 до 5. Надішліть у чат цифру. Виконавець побачить вашу оцінку, це не анонімно, але оцінюйте чесно.");
-            Rooms rooms = new Rooms();
-            rooms.setIsFree(roomsRepository.findById(roomID).get().isIsFree());
-            rooms.setRoomID(roomsRepository.findById(roomID).get().getRoomID());
-            rooms.setRoomNumber(roomsRepository.findById(roomID).get().getRoomNumber());
-            rooms.setChatLink(roomsRepository.findById(roomID).get().getChatLink());
-            rooms.setCustomerID(roomsRepository.findById(roomID).get().getCustomerID());
-            rooms.setPerformerID(roomsRepository.findById(roomID).get().getPerformerID());
-            rooms.setPostId(roomsRepository.findById(roomID).get().getPostId());
-            rooms.setDate(roomsRepository.findById(roomID).get().getDate());
-            rooms.setPayload(roomsRepository.findById(roomID).get().getPayload());
-            rooms.setStateInChat(roomsRepository.findById(roomID).get().getStateInChat());
+            Rooms rooms = roomsRepository.findById(roomID).get();
             rooms.setFollowing(1);
             roomsRepository.save(rooms);
+            //            Rooms rooms = new Rooms();
+//            rooms.setIsFree(roomsRepository.findById(roomID).get().isIsFree());
+//            rooms.setRoomID(roomsRepository.findById(roomID).get().getRoomID());
+//            rooms.setRoomNumber(roomsRepository.findById(roomID).get().getRoomNumber());
+//            rooms.setChatLink(roomsRepository.findById(roomID).get().getChatLink());
+//            rooms.setCustomerID(roomsRepository.findById(roomID).get().getCustomerID());
+//            rooms.setPerformerID(roomsRepository.findById(roomID).get().getPerformerID());
+//            rooms.setPostId(roomsRepository.findById(roomID).get().getPostId());
+//            rooms.setDate(roomsRepository.findById(roomID).get().getDate());
+//            rooms.setPayload(roomsRepository.findById(roomID).get().getPayload());
+//            rooms.setStateInChat(roomsRepository.findById(roomID).get().getStateInChat());
+//            rooms.setFollowing(1);
+//            roomsRepository.save(rooms);
             try {
                 // Send the message
                 execute(sendMessage);
             } catch (TelegramApiException e){e.printStackTrace();}
         }
     }
+    //редагування коду
     public void checkCustomerEstimate(long customerID, Message message, int estimate) {
         if (customerID != message.getFrom().getId()) {
             SendMessage sendMessage = new SendMessage();
@@ -2664,7 +2829,10 @@ if(user_sms.matches("^-?\\d+$")){
             for(int i=0; i<roomsRepository.count();i++){
                 if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChat().getId())){
                     long performerID = roomsRepository.findById(i+1).get().getPerformerID();
-                    Rooms rooms = new Rooms();
+                    Rooms rooms = roomsRepository.findById(i+1).get();
+                    rooms.setFollowing(2);
+                    roomsRepository.save(rooms);
+                    /*Rooms rooms = new Rooms();
                     rooms.setIsFree(roomsRepository.findById(i+1).get().isIsFree());
                     rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
                     rooms.setRoomNumber(roomsRepository.findById(i+1).get().getRoomNumber());
@@ -2676,13 +2844,14 @@ if(user_sms.matches("^-?\\d+$")){
                     rooms.setPayload(roomsRepository.findById(i+1).get().getPayload());
                     rooms.setStateInChat(roomsRepository.findById(i+1).get().getStateInChat());
                     rooms.setFollowing(2);
-                    roomsRepository.save(rooms);
-                    Performer performer = new Performer();
-                    performer.setBargain_amount(performerRepository.findById(performerID).get().getBargain_amount()+1);
-                    performer.setChatID(performerRepository.findById(performerID).get().getChatID());
-                    performer.setSurname(performerRepository.findById(performerID).get().getSurname());
-                    performer.setName(performerRepository.findById(performerID).get().getName());
-                    performer.setUser_nick(performerRepository.findById(performerID).get().getUser_nick());
+                    roomsRepository.save(rooms);*/
+//                    Performer performer = new Performer();
+//                    performer.setBargain_amount(performerRepository.findById(performerID).get().getBargain_amount()+1);
+//                    performer.setChatID(performerRepository.findById(performerID).get().getChatID());
+//                    performer.setSurname(performerRepository.findById(performerID).get().getSurname());
+//                    performer.setName(performerRepository.findById(performerID).get().getName());
+//                    performer.setUser_nick(performerRepository.findById(performerID).get().getUser_nick());
+                    Performer performer = performerRepository.findById(performerID).get();
                    if(performerRepository.findById(performerID).get().getRating().equals(const_text.getFirst_performer())){
                        performer.setRating(message.getText());
                    }else{
@@ -2693,7 +2862,6 @@ if(user_sms.matches("^-?\\d+$")){
                    }
                    performerRepository.save(performer);
                     break;
-
                 }
             }
         }
@@ -2762,6 +2930,7 @@ if(user_sms.matches("^-?\\d+$")){
             e.printStackTrace();
         }
     }
+    //редагування коду
     public void closeBargain(Update update){
         long performerID=0;
         String payload="";
@@ -2776,7 +2945,10 @@ if(user_sms.matches("^-?\\d+$")){
                 break;
             }
         }
-        Purchase purchase = new Purchase();
+        Purchase purchase = purchaseRepository.findById(payload).get();
+        purchase.setSuccessfulBargain(true);
+        purchaseRepository.save(purchase);
+      /*  Purchase purchase = new Purchase();
         purchase.setPayloadID(purchaseRepository.findById(payload).get().getPayloadID());
         purchase.setCustomerID(purchaseRepository.findById(payload).get().getCustomerID());
         purchase.setPerformerID(purchaseRepository.findById(payload).get().getPerformerID());
@@ -2787,7 +2959,7 @@ if(user_sms.matches("^-?\\d+$")){
         purchase.setMessageID(purchaseRepository.findById(payload).get().getMessageID());
         purchase.setSuccessfulBargain(true);
         purchase.setPerformerCard(purchaseRepository.findById(payload).get().getPerformerCard());
-        purchaseRepository.save(purchase);
+        purchaseRepository.save(purchase);*/
         try {
             deleteMember(roomID, performerID);
         } catch (IOException e) {throw new RuntimeException(e);}
@@ -2818,9 +2990,10 @@ if(user_sms.matches("^-?\\d+$")){
         newPost.setActive(false);
         postRepository.save(newPost);
     }
+    //редагування коду
     public void setWarningToCleanRoom(Message message) throws IOException {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setText("Єлизавето, прибиральнице, видрій кімнату, сцуко!");
+        sendMessage.setText("Єлизавето, прибиральнице, видрій кімнату, сцуко!  @vasssabiiiiii");
         sendMessage.setChatId(message.getChat().getId());
         try {
             // Send the message
@@ -2840,19 +3013,25 @@ if(user_sms.matches("^-?\\d+$")){
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
-                Rooms rooms = new Rooms();
-                rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
-                rooms.setRoomNumber(roomsRepository.findById(i + 1).get().getRoomNumber());
-                rooms.setPostId(roomsRepository.findById(i + 1).get().getPostId());
+                Rooms rooms = roomsRepository.findById(i + 1).get();
                 rooms.setIsFree(false);
                 rooms.setDate("Тайм зробити клінінг");
                 rooms.setChatLink(newChatLink);
                 roomsRepository.save(rooms);
+//                Rooms rooms = new Rooms();
+//                rooms.setRoomID(roomsRepository.findById(i + 1).get().getRoomID());
+//                rooms.setRoomNumber(roomsRepository.findById(i + 1).get().getRoomNumber());
+//                rooms.setPostId(roomsRepository.findById(i + 1).get().getPostId());
+//                rooms.setIsFree(false);
+//                rooms.setDate("Тайм зробити клінінг");
+//                rooms.setChatLink(newChatLink);
+//                roomsRepository.save(rooms);
                 break;
             }
         }
 
     }
+    //редагування коду
     public void cleanRoom(Update update, boolean deletePost) throws IOException {
         long postID = 0;
         long chanels = 0;
@@ -2881,12 +3060,15 @@ if(user_sms.matches("^-?\\d+$")){
 
         for(int i=0; i<roomsRepository.count();i++){
             if (update.getMessage().getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
-                Rooms rooms = new Rooms();
-                rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
-                rooms.setRoomNumber(roomsRepository.findById(i+1).get().getRoomNumber());
-                rooms.setChatLink(roomsRepository.findById(i+1).get().getChatLink());
+                Rooms rooms =roomsRepository.findById(i+1).get();
                 rooms.setIsFree(true);
                 roomsRepository.save(rooms);
+//                Rooms rooms = new Rooms();
+//                rooms.setRoomID(roomsRepository.findById(i+1).get().getRoomID());
+//                rooms.setRoomNumber(roomsRepository.findById(i+1).get().getRoomNumber());
+//                rooms.setChatLink(roomsRepository.findById(i+1).get().getChatLink());
+//                rooms.setIsFree(true);
+//                roomsRepository.save(rooms);
                 break;
             }
         }
@@ -3357,6 +3539,7 @@ sendMessage.setText(const_text.getThiefId());
            }
        }
    }
+    //доп
     public String thiefRow(String list, int state){
         String resultString = "";
         long thiefID=0;
@@ -3456,6 +3639,9 @@ sendMessage.setText(const_text.getThiefId());
                e.printStackTrace();
            }
        }
+       Customer customer = customerRepository.findById(782340442L).get();
+       customer.setThiefListState(0);
+       customerRepository.save(customer);
    }
    public void setAdminToAddThief(Update update){
         SendMessage sendMessage = new SendMessage();
@@ -3468,6 +3654,44 @@ sendMessage.setText(const_text.getThiefId());
            e.printStackTrace();
        }
    }
+   public void setThiefCheck(Update update){
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setText(const_text.getThiefCheck());
+        sendMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+        Customer customer = customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get();
+        customer.setThiefListState(50);
+        customerRepository.save(customer);
+       try {
+           // Send the message
+           execute(sendMessage);
+       } catch (TelegramApiException e) {
+           e.printStackTrace();
+       }
+   }
+   public void checkThiefFromCustomer(Message message){
+        if(!thiefRepository.findById(message.getForwardFrom().getId()).isEmpty()){
+          SendMessage sendMessage = new SendMessage();
+          sendMessage.setText(const_text.getThiefExists());
+          sendMessage.setChatId(message.getChatId());
+            try {
+                // Send the message
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }else{
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setText(const_text.getThiefDoesntExists());
+            sendMessage.setChatId(message.getChatId());
+            try {
+                // Send the message
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+   }
+
 }
    /* public void set_last_menu(String chatId){
         SendMessage main_menu_sms = new SendMessage();
