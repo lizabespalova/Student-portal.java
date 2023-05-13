@@ -5,7 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
+import java.util.Date;
 
 
 @Data
@@ -34,4 +34,6 @@ public class Purchase {
     private boolean flag;
     @Column(nullable=false,name = "successfulBargain")
     private boolean successfulBargain;
+    @Column(nullable=true,name = "date")
+    private String date;
 }

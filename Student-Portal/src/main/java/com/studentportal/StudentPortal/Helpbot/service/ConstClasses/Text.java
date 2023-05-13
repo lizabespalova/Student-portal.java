@@ -1,4 +1,4 @@
-package com.studentportal.StudentPortal.Helpbot.service;
+package com.studentportal.StudentPortal.Helpbot.service.ConstClasses;
 
 import com.vdurmont.emoji.EmojiParser;
 import lombok.Data;
@@ -65,7 +65,7 @@ public class Text {
     private final String addThiefName = ("Вкажіть ім'я шахрая");
     private final String addThiefNick = ("Вкажіть нік шахрая");
     private final String readyThief = ("Шахрая добавлено");
-    private final String checkThief=("Перевірка виконавця");
+    private final String checkThief=("Перевірка");
     private final String thiefListToAppand = "Список шахраїв: ";
     private final String leftSide = EmojiParser.parseToUnicode(":arrow_left:");
     private final String rightSide = EmojiParser.parseToUnicode(":arrow_right:");
