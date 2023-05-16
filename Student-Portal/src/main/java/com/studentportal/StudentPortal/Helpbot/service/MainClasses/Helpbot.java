@@ -40,6 +40,8 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -618,6 +620,7 @@ if(message.getFrom().getId()==782340442&&!customerRepository.findById(782340442L
 }
 if(user_sms.matches("^-?\\d+$")){
                 int estimate = Integer.parseInt(user_sms);
+
                 long customerID=0;
                 for(int i=0; i<roomsRepository.count(); i++){
                     if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChat().getId())){
@@ -2049,11 +2052,12 @@ if(user_sms.matches("^-?\\d+$")){
                 break;
             }
         }
-        Date date = new Date();
-        String currentDate = String.valueOf(date);
+        Date currentDate = new Date();
+        DateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        String dateToload = sdf.format(currentDate);
         Purchase purchase = purchaseRepository.findById(payload).get();
         purchase.setSuccessfulBargain(true);
-        purchase.setDate(currentDate);
+        purchase.setDate(dateToload);
         purchaseRepository.save(purchase);
         try {
             deleteMember(roomID, performerID);
@@ -2767,10 +2771,6 @@ sendMessage.setText(const_text.getThiefId());
             }
         }
    }
-   //зробити дженеріки
-//   public void deleteOldPost() {
-//
-//   }
 }
 
 

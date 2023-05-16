@@ -13,6 +13,8 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Chanels {
@@ -57,8 +59,9 @@ public class Chanels {
             }
 
         }
-        Date date = new Date();
-        String dateToload = date.toString();
+            Date currentDate = new Date();
+            DateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+            String dateToload = sdf.format(currentDate);
 //        String urlList=("https://t.me/matem_vedmedyk/"+ digits);
             String urlList = ("https://t.me/"+chanel.substring(1) + "/"+ digits);
             Customer customer = customerRepository.findById(message.getChatId()).get();

@@ -27,7 +27,7 @@ public class CleanBD <T, K extends CrudRepository>{
           Date today = new Date();
           for (Post post: list){
               SimpleDateFormat format = new SimpleDateFormat();
-              format.applyPattern("EEE MMM d HH:mm:ss zzzz yyyy");
+              format.applyPattern("dd.MM.yyyy");
               String getDate = post.getDate();;
               Date oldDate = null;
               try {
@@ -51,7 +51,7 @@ public class CleanBD <T, K extends CrudRepository>{
           Date today = new Date();
           for (Purchase purchase : list) {
               SimpleDateFormat format = new SimpleDateFormat();
-              format.applyPattern("MMM d, yyyy hh:mm:ss a");
+              format.applyPattern("dd.MM.yyyy");
               String getDate = purchase.getDate();;
               Date oldDate = null;
               try {
