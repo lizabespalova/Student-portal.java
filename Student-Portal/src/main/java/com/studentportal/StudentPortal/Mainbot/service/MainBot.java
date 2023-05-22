@@ -1,5 +1,4 @@
 package com.studentportal.StudentPortal.Mainbot.service;
-
 import com.studentportal.StudentPortal.Mainbot.config.MainbotConfig;
 import com.vdurmont.emoji.EmojiParser;
 import org.springframework.stereotype.Component;
@@ -15,10 +14,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.util.ArrayList;
 import java.util.List;
-
 @Component
 public class MainBot extends TelegramLongPollingBot {
     final MainbotConfig config;
@@ -32,7 +29,7 @@ public class MainBot extends TelegramLongPollingBot {
     public MainBot(MainbotConfig config) {
         this.config = config;
         List<BotCommand> listofCommands = new ArrayList<>();
-        text = EmojiParser.parseToUnicode(":swan:"+" "+"Виберіть свій статус");
+        text = EmojiParser.parseToUnicode(":swan:"+" "+"Оберіть свій статус");
         listofCommands.add(new BotCommand("/start", text));
         text = EmojiParser.parseToUnicode(":dove:"+" "+"Допомога");
         listofCommands.add(new BotCommand("/help",text));
@@ -59,7 +56,9 @@ public class MainBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
         if (update.hasCallbackQuery()) {
-            user_choice(update);
+            if(update.getCallbackQuery().getData().equals(buttons.PERFOMER.toString())){
+                setMenuChoice(update.getCallbackQuery().getMessage());
+            }
         }
         if(message.hasText() && update.getMessage().hasText()){
             user_message = message.getText();
@@ -78,7 +77,7 @@ public class MainBot extends TelegramLongPollingBot {
                    break;
                }
                default:
-                   send_default_sms(String.valueOf(message.getChatId()));
+                  /* send_default_sms(String.valueOf(message.getChatId()));*/
            }
         }
 
@@ -122,7 +121,6 @@ public class MainBot extends TelegramLongPollingBot {
         var permormer_Button = new InlineKeyboardButton();
         text = EmojiParser.parseToUnicode("Я виконавець" + ":woman_technologist:");
         permormer_Button.setText(text);
-        permormer_Button.setUrl("https://telegra.ph/Pravila-koristuvannya-studentskim-portalom-01-01");
         permormer_Button.setCallbackData(buttons.PERFOMER.toString());
         row_inline.add(customer_Button);
         row_inline.add(permormer_Button);
@@ -133,31 +131,6 @@ public class MainBot extends TelegramLongPollingBot {
             execute(main_menu_sms);
         }catch(TelegramApiException e){
             e.printStackTrace();
-        }
-    }
-    public void user_choice(Update update){
-        long chatID = update.getCallbackQuery().getMessage().getChatId();
-        callbackdata = update.getCallbackQuery().getData();
-        messageID = update.getCallbackQuery().getMessage().getMessageId();
-        if(callbackdata.equals(buttons.PERFOMER.toString())) {
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(chatID);
-            sendMessage.setText("Це виконавець");
-            try{
-                execute(sendMessage);
-            }catch(TelegramApiException e){
-                e.printStackTrace();
-            }
-        }
-        else if(callbackdata.equals(buttons.CUSTOMER.toString())){
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(chatID);
-            sendMessage.setText("Це замовник");
-            try{
-                execute(sendMessage);
-            }catch(TelegramApiException e){
-                e.printStackTrace();
-            }
         }
     }
     public void rules_buttons(String chatId){
@@ -173,7 +146,7 @@ public class MainBot extends TelegramLongPollingBot {
         var bot_guide = new InlineKeyboardButton();
         text = EmojiParser.parseToUnicode("Правила користування ботом" + ":robot_face:");
         bot_guide.setText(text);
-        bot_guide.setUrl("https://telegra.ph/Pravila-koristuvannya-studentskim-portalom-01-01");
+        bot_guide.setUrl("https://telegra.ph/Pravila-koristuvannya-botom-Vedmedik-05-01");
         bot_guide.setCallbackData(buttons.RULEBOT.toString());
         var bot_payment = new InlineKeyboardButton();
         text = EmojiParser.parseToUnicode("Правила оплати" + ":money_with_wings:");
@@ -212,14 +185,80 @@ public class MainBot extends TelegramLongPollingBot {
         }
 
     }
-    public void send_default_sms(String chatId){
-        SendMessage senddefaultmessage= new SendMessage();
-        senddefaultmessage.setText("Такої дії не існує");
-        senddefaultmessage.setChatId(chatId);
-        try {
-            // Send the message
-            execute(senddefaultmessage);
-        } catch (TelegramApiException e) {
+    public void setMenuChoice(Message message){
+        SendMessage main_menu_sms = new SendMessage();
+        main_menu_sms.setChatId(message.getChatId());
+        main_menu_sms.setText("Обери галузь, в якій ви добре знаєтесь:");
+         String programming_text=EmojiParser.parseToUnicode("Програмування" + ":computer:");
+         String matem_text =   EmojiParser.parseToUnicode("Математика" + ":1234:");
+         String medicine_text=EmojiParser.parseToUnicode("Медицина" + ":woman_health_worker:");
+         String phylosophy_text=EmojiParser.parseToUnicode("Філософія" + ":book:");
+         String languages_text= EmojiParser.parseToUnicode("Мови" + ":globe_with_meridians:");
+         String chemistry_text= EmojiParser.parseToUnicode("Хімія" + ":alembic: ");
+         String geographe_text =EmojiParser.parseToUnicode("Географія" + ":earth_americas:");
+         String another_text = "Інше...";
+        InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
+
+        List<InlineKeyboardButton> row_inline=new ArrayList<>();
+        var programming_Button = new InlineKeyboardButton();
+        programming_Button.setText(programming_text);
+        programming_Button.setCallbackData("PROGRAMMING");
+        programming_Button.setUrl("https://t.me/program_vedmedyk/");
+        var math_Button = new InlineKeyboardButton();
+        math_Button.setText(matem_text);
+        math_Button.setCallbackData("MATH");
+        math_Button.setUrl("https://t.me/matem_vedmedyk/");
+        row_inline.add(programming_Button);
+        row_inline.add(math_Button);
+
+
+        List<InlineKeyboardButton> row1_inline=new ArrayList<>();
+        var medicine_button = new InlineKeyboardButton();
+        medicine_button.setText(medicine_text);
+        medicine_button.setCallbackData("MEDICINE");
+        medicine_button.setUrl("https://t.me/medicine_vedmedyk/");
+        var chemistry_button = new InlineKeyboardButton();
+        chemistry_button.setText(chemistry_text);
+        chemistry_button.setCallbackData("CHEMISTRY");
+        chemistry_button.setUrl("https://t.me/chemistry_vedmedyk/");
+        row1_inline.add(medicine_button);
+        row1_inline.add(chemistry_button);
+
+        List<InlineKeyboardButton> row2_inline=new ArrayList<>();
+        var phylosophy_button = new InlineKeyboardButton();
+        phylosophy_button.setText(phylosophy_text);
+        phylosophy_button.setCallbackData("PHYLOSOPHY");
+        phylosophy_button.setUrl("https://t.me/phylosophy_vedmedyk/");
+        var language_button = new InlineKeyboardButton();
+        language_button.setText(languages_text);
+        language_button.setCallbackData("LANGUAGES");
+        language_button.setUrl("https://t.me/languages_vedmedyk/");
+        row2_inline.add(phylosophy_button);
+        row2_inline.add(language_button);
+
+
+        List<InlineKeyboardButton> row3_inline=new ArrayList<>();
+        var geography_button = new InlineKeyboardButton();
+        geography_button.setText(geographe_text);
+        geography_button.setCallbackData("GEOGRAPHY");
+        geography_button.setUrl("https://t.me/geogtaphy_vedmedyk/");
+        var another_button = new InlineKeyboardButton();
+        another_button.setText(another_text);
+        another_button.setCallbackData("ANOTHER");
+        another_button.setUrl("https://t.me/main_vedmedyk/");
+        row3_inline.add(geography_button);
+        row3_inline.add(another_button);
+
+        rows_inline.add(row_inline);
+        rows_inline.add(row1_inline);
+        rows_inline.add(row2_inline);
+        rows_inline.add(row3_inline);
+        inline_keybord.setKeyboard(rows_inline);
+        main_menu_sms.setReplyMarkup(inline_keybord);
+        try{
+            execute(main_menu_sms);
+        }catch(TelegramApiException e){
             e.printStackTrace();
         }
     }

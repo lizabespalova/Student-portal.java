@@ -1,7 +1,8 @@
-package com.studentportal.StudentPortal.Helpbot.service;
+package com.studentportal.StudentPortal.Helpbot.service.DopClasses;
 
 import com.studentportal.StudentPortal.Helpbot.model.CustomerRepository;
 import com.studentportal.StudentPortal.Helpbot.model.PostRepository;
+import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Text;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -13,7 +14,7 @@ public class CustomerActions {
     @Autowired
     private CustomerRepository customerRepository;
     private Text constText = new Text();
-    CustomerActions(CustomerRepository customerRepository){
+    public CustomerActions(CustomerRepository customerRepository){
      this.customerRepository =customerRepository;
  }
     public int finish_price_for_customer(int price){

@@ -1,4 +1,4 @@
-package com.studentportal.StudentPortal.Helpbot.service;
+package com.studentportal.StudentPortal.Helpbot.service.ConstClasses;
 
 public enum Quiz {
     MAINMENU,

@@ -1,5 +1,7 @@
-package com.studentportal.StudentPortal.Helpbot.service;
+package com.studentportal.StudentPortal.Helpbot.service.DopClasses;
 
+import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Subjects;
+import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Text;
 import org.springframework.stereotype.Component;
 
 @Component
