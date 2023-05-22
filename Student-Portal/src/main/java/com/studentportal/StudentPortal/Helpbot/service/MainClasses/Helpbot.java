@@ -1,4 +1,5 @@
 package com.studentportal.StudentPortal.Helpbot.service.MainClasses;
+/*import com.studentportal.StudentPortal.Helpbot.config.AppConfig;*/
 import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Quiz;
 import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Subjects;
 import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Text;
@@ -6,6 +7,7 @@ import com.studentportal.StudentPortal.Helpbot.service.DopClasses.Chanels;
 import com.studentportal.StudentPortal.Helpbot.service.DopClasses.CleanBD;
 import com.studentportal.StudentPortal.Helpbot.service.DopClasses.CustomerActions;
 import com.studentportal.StudentPortal.Helpbot.service.DopClasses.Subjectgetters;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.ExportChatInviteLink;
 import com.studentportal.StudentPortal.Helpbot.config.HelpbotConfig;
@@ -47,7 +49,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-
+@Slf4j
 @Component
 public class Helpbot extends TelegramLongPollingBot {
     @Autowired
@@ -64,6 +66,7 @@ public class Helpbot extends TelegramLongPollingBot {
     private ThiefRepository thiefRepository;
     private Chanels chanel;
     private Text const_text;
+
     final HelpbotConfig config;
     private String text;
     private Subjects subjects;
@@ -78,8 +81,8 @@ public class Helpbot extends TelegramLongPollingBot {
         return config.getToken();
     }
 
-    public Helpbot(HelpbotConfig config) {
-        this.config = config;
+    public Helpbot(HelpbotConfig helpbotConfig) {
+        config = helpbotConfig;
         List<BotCommand> listofCommands = new ArrayList<>();
         text = ("Меню");
         listofCommands.add(new BotCommand("/start", text));
@@ -433,7 +436,6 @@ public class Helpbot extends TelegramLongPollingBot {
                  checkThiefFromCustomer(message);
             }
         }
-
         if(message!=null){
         String user_sms = message.getText();
 
@@ -837,7 +839,7 @@ if(user_sms.matches("^-?\\d+$")){
     //редагування коду
     public void get_file_description(Update update) throws IOException {
         String file_id = update.getMessage().getDocument().getFileId();
-        String urlString = "https://api.telegram.org/bot5814824968:AAEZRhb1emGeCJJ2cgDFTXwRF-d4fdbw1w8/sendDocument?chat_id=@vedmedik_base&document="+file_id;
+        String urlString = "https://api.telegram.org/bot"+getBotToken()+"/sendDocument?chat_id=@vedmedik_base&document="+file_id;
         String chatId = "@vedmedik_base";
         urlString = String.format(urlString, getBotToken(), chatId, file_id);
         Customer customer = customerRepository.findById(update.getMessage().getChatId()).get();
@@ -893,7 +895,7 @@ if(user_sms.matches("^-?\\d+$")){
     //редагування коду
     public void get_photo_description(Update update) {
         String photo_id=update.getMessage().getPhoto().get(3).getFileId();
-        String urlString = "https://api.telegram.org/bot5814824968:AAEZRhb1emGeCJJ2cgDFTXwRF-d4fdbw1w8/sendPhoto?chat_id=@vedmedik_base&photo="+photo_id;
+        String urlString = "https://api.telegram.org/bot"+getBotToken()+"/sendPhoto?chat_id=@vedmedik_base&photo="+photo_id;
         String chatId = "@vedmedik_base";
         urlString = String.format(urlString, getBotToken(), chatId, photo_id);
         Customer customer = customerRepository.findById(update.getMessage().getChatId()).get();
