@@ -31,5 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-
-/src/main/resources
+git rm --cached -r src/main/resources
+git commit -m "Remove tracked files from repository"
+#/src/main/resources
