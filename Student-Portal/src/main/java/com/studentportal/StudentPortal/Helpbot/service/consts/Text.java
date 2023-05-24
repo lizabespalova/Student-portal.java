@@ -1,9 +1,9 @@
-package com.studentportal.StudentPortal.Helpbot.service.ConstClasses;
+package com.studentportal.StudentPortal.Helpbot.service.consts;
 
 import com.vdurmont.emoji.EmojiParser;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class Text {
     private final String back_text =  EmojiParser.parseToUnicode(":back:"+"Назад");
     private final String end_text =  EmojiParser.parseToUnicode("Відмінити"+":x:");
