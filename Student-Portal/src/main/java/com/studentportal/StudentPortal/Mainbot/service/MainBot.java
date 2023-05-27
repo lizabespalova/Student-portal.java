@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
-@Component
+//@Component
 public class MainBot extends TelegramLongPollingBot {
     final MainbotConfig config;
     private String user_message;

@@ -2,7 +2,7 @@ package com.studentportal.StudentPortal.Helpbot.service.DopClasses;
 
 import com.studentportal.StudentPortal.Helpbot.model.CustomerRepository;
 import com.studentportal.StudentPortal.Helpbot.model.PostRepository;
-import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Text;
+import com.studentportal.StudentPortal.Helpbot.service.consts.Text;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;

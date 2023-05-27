@@ -1,24 +1,36 @@
 package com.studentportal.StudentPortal.Helpbot.service.MainClasses;
-/*import com.studentportal.StudentPortal.Helpbot.config.AppConfig;*/
-import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Quiz;
-import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Subjects;
-import com.studentportal.StudentPortal.Helpbot.service.ConstClasses.Text;
+
+
+import com.studentportal.StudentPortal.Helpbot.config.HelpbotConfig;
+import com.studentportal.StudentPortal.Helpbot.model.Customer;
+import com.studentportal.StudentPortal.Helpbot.model.CustomerRepository;
+import com.studentportal.StudentPortal.Helpbot.model.Performer;
+import com.studentportal.StudentPortal.Helpbot.model.PerformerRepository;
+import com.studentportal.StudentPortal.Helpbot.model.Post;
+import com.studentportal.StudentPortal.Helpbot.model.PostRepository;
+import com.studentportal.StudentPortal.Helpbot.model.Purchase;
+import com.studentportal.StudentPortal.Helpbot.model.PurchaseRepository;
+import com.studentportal.StudentPortal.Helpbot.model.Rooms;
+import com.studentportal.StudentPortal.Helpbot.model.RoomsRepository;
+import com.studentportal.StudentPortal.Helpbot.model.Thief;
+import com.studentportal.StudentPortal.Helpbot.model.ThiefRepository;
 import com.studentportal.StudentPortal.Helpbot.service.DopClasses.Chanels;
 import com.studentportal.StudentPortal.Helpbot.service.DopClasses.CleanBD;
 import com.studentportal.StudentPortal.Helpbot.service.DopClasses.CustomerActions;
 import com.studentportal.StudentPortal.Helpbot.service.DopClasses.Subjectgetters;
+import com.studentportal.StudentPortal.Helpbot.service.consts.Quiz;
+import com.studentportal.StudentPortal.Helpbot.service.consts.Subjects;
+import com.studentportal.StudentPortal.Helpbot.service.consts.Text;
+import com.vdurmont.emoji.EmojiParser;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.ExportChatInviteLink;
-import com.studentportal.StudentPortal.Helpbot.config.HelpbotConfig;
-import com.studentportal.StudentPortal.Helpbot.model.*;
-import com.vdurmont.emoji.EmojiParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.AnswerPreCheckoutQuery;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.ExportChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.invoices.CreateInvoiceLink;
 import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -36,9 +48,18 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import com.studentportal.StudentPortal.Helpbot.service.command.BotCommand.CommandFactory;
 
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -64,6 +85,9 @@ public class Helpbot extends TelegramLongPollingBot {
     private PurchaseRepository purchaseRepository;
     @Autowired
     private ThiefRepository thiefRepository;
+    @Autowired
+    private CommandFactory commandFactory;
+
     private Chanels chanel;
     private Text const_text;
 
@@ -100,6 +124,10 @@ public class Helpbot extends TelegramLongPollingBot {
         Message message = update.getMessage();
         const_text= new Text();
         if (update.hasCallbackQuery()) {
+            commandFactory.getCommand(update)
+                    .resolve(update);
+
+            ///
             long chatID = update.getCallbackQuery().getMessage().getChatId();
             String messagetext = update.getCallbackQuery().getData();
             if(messagetext.equals(subjects.MATH.toString())||messagetext.equals(subjects.PROGRAMMING.toString())||
