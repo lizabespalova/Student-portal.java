@@ -1,4 +1,4 @@
-package com.studentportal.StudentPortal.Helpbot.service.DopClasses;
+package com.studentportal.StudentPortal.Helpbot.service.dopclasses;
 
 import com.studentportal.StudentPortal.Helpbot.model.Post;
 import com.studentportal.StudentPortal.Helpbot.model.Purchase;

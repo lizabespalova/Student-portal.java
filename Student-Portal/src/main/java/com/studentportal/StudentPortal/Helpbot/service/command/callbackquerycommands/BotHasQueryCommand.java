@@ -1,15 +1,14 @@
-package com.studentportal.StudentPortal.Helpbot.service.command;
+package com.studentportal.StudentPortal.Helpbot.service.command.callbackquerycommands;
 
 
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 
-public interface BotCommand {
+public interface BotHasQueryCommand  {
 
 
     void resolve(Update update);
@@ -20,12 +19,12 @@ public interface BotCommand {
 
     @Component
     @AllArgsConstructor
-    class CommandFactory {
+    class CommandCallbackQueryFactory {
 
-        private final List<BotCommand> commands;
+        private final List<BotHasQueryCommand> commands;
 
-        public BotCommand getCommand(Update update) {
-            for (BotCommand command : commands) {
+        public BotHasQueryCommand getCommand(Update update) {
+            for (BotHasQueryCommand command : commands) {
                 if (command.apply(update)) {
                     return command;
                 }
