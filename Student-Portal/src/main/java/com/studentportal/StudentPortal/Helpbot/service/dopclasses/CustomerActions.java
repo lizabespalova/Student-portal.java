@@ -1,4 +1,4 @@
-package com.studentportal.StudentPortal.Helpbot.service.DopClasses;
+package com.studentportal.StudentPortal.Helpbot.service.dopclasses;
 
 import com.studentportal.StudentPortal.Helpbot.model.CustomerRepository;
 import com.studentportal.StudentPortal.Helpbot.model.PostRepository;
@@ -37,7 +37,7 @@ public class CustomerActions {
     }
     public StringBuilder set_customer_post(Message message) {
         StringBuilder sb = new StringBuilder(/*"<b>"*/);
-        sb.append(constText.getActive_state());
+        sb.append(Text.active_state);
         sb.append("\n\n\n");
         String branch = customerRepository.findById(message.getChatId()).get().getBranch();
         sb.append("<b>Галузь: </b>"+  branch);
@@ -46,7 +46,7 @@ public class CustomerActions {
         String description = customerRepository.findById(message.getChatId()).get().getDescription();
         sb.append(description);
         sb.append("\n\n\n");
-        sb.append("<b>"+constText.getPrice_text()+"</b>"+": "+ customerRepository.findById(message.getChatId()).get().getPrice());
+        sb.append("<b>"+Text.price_text+"</b>"+": "+ customerRepository.findById(message.getChatId()).get().getPrice());
         sb.append("\n");
 
         if(customerRepository.findById(message.getChatId()).get().getFileLink()!=null) {
@@ -99,7 +99,7 @@ public class CustomerActions {
     }
     public StringBuilder set_in_group_info(){
         StringBuilder sb = new StringBuilder();
-        sb.append(constText.getChat_text());
+        sb.append(Text.chat_text);
         sb.append("\n\n\n");
         sb.append("Адміністрація:");
         sb.append("\n");
@@ -115,7 +115,7 @@ public class CustomerActions {
     }
     public StringBuilder setThiefList(String list){
         StringBuilder sb = new StringBuilder();
-        sb.append(constText.getThiefListToAppand());
+        sb.append(Text.thiefListToAppand);
         sb.append("\n");
         sb.append(list);
         return sb;
