@@ -4,11 +4,12 @@ import com.studentportal.StudentPortal.Helpbot.model.CustomerRepository;
 import com.studentportal.StudentPortal.Helpbot.model.RoomsRepository;
 import com.studentportal.StudentPortal.Helpbot.service.consts.Text;
 import com.studentportal.StudentPortal.Helpbot.service.mainclasses.Helpbot;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-public class FromMeCommand extends HasNotNullMessageCommands{
-    public FromMeCommand(Helpbot helpbot, CustomerRepository customerRepository, RoomsRepository roomsRepository) {
+@Component
+public class HasZFromMeCommand extends HasNotNullMessageCommands{
+    public HasZFromMeCommand(Helpbot helpbot, CustomerRepository customerRepository, RoomsRepository roomsRepository) {
         super(helpbot, customerRepository, roomsRepository);
     }
 

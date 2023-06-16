@@ -161,5 +161,28 @@ public abstract class HasMessageCommands extends Commands implements BotHasMessa
             }
         }
     }
+    public void checkThiefFromCustomer(Message message){
+        if(!thiefRepository.findById(message.getForwardFrom().getId()).isEmpty()){
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setText(Text.thiefExists);
+            sendMessage.setChatId(message.getChatId());
+            try {
+                // Send the message
+                helpbot.execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }else{
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setText(Text.thiefDoesntExists);
+            sendMessage.setChatId(message.getChatId());
+            try {
+                // Send the message
+                helpbot.execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
