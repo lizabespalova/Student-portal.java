@@ -36,7 +36,6 @@ public class CleanBD <T, K extends CrudRepository>{
                   throw new RuntimeException(e);
               }
 
-
               long delta = (today.getTime()-oldDate.getTime()) / 86400000;
               if(delta > 30){
                   int postID = post.getMessageID();

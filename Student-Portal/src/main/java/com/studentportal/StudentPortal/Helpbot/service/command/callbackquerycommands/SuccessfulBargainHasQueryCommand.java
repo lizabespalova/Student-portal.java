@@ -37,7 +37,7 @@ public class SuccessfulBargainHasQueryCommand extends QueryCommands {
     @Override
     public void resolve(Update update) {
         var chatId = update.getCallbackQuery().getMessage().getChatId();
-        var messagetext = update.getMessage().getText();
+        var messagetext = update.getCallbackQuery().getData();
         boolean flag = true;
         String performerID="";
         String postID="";
@@ -180,7 +180,7 @@ public class SuccessfulBargainHasQueryCommand extends QueryCommands {
     }
     @Override
     public boolean apply(Update update) {
-        var messagetext = update.getCallbackQuery().getMessage().getText();
+        var messagetext = update.getCallbackQuery().getData();
         return Character.isDigit(messagetext.charAt(0));
     }
 }

@@ -83,14 +83,9 @@ public class YesHasQueryCommand extends QueryCommands {
                         k++;
                     }
                     long customerId = 0;
-                    for(int j=0; j<roomsRepository.count();j++){
-                        if(roomsRepository.findById(j+1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChatId())){
-                            customerId = roomsRepository.findById(j+1).get().getCustomerID();
-                            price = roomsRepository.findById(j + 1).get().getPrice();
-                            Rooms rooms = roomsRepository.findById(j + 1).get();
-                            rooms.setPayload(payLoad);
-                            roomsRepository.save(rooms);
-                            break;
+                    for(int j=0; j<roomsRepository.count();j++) {
+                        if (roomsRepository.findById(j + 1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChatId())) {
+                            customerId = roomsRepository.findById(j + 1).get().getCustomerID();
                         }
                     }
                     Purchase purchase = new Purchase();
@@ -104,6 +99,15 @@ public class YesHasQueryCommand extends QueryCommands {
                     purchaseRepository.save(purchase);
                 }
                 else{payLoad = roomsRepository.findById(i+1).get().getPayload();break;}
+            }
+        }
+        for(int j=0; j<roomsRepository.count();j++){
+            if(roomsRepository.findById(j+1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChatId())){
+                price = roomsRepository.findById(j + 1).get().getPrice();
+                Rooms rooms = roomsRepository.findById(j + 1).get();
+                rooms.setPayload(payLoad);
+                roomsRepository.save(rooms);
+                break;
             }
         }
         int finishPrice = customerActions.finish_price_for_customer(price);
@@ -138,7 +142,7 @@ public class YesHasQueryCommand extends QueryCommands {
     }
     @Override
     public boolean apply(Update update) {
-        var messagetext = update.getCallbackQuery().getMessage().getText();
+        var messagetext = update.getCallbackQuery().getData();
         return messagetext.equals("YES");
     }
 }

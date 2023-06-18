@@ -30,7 +30,7 @@ public class CloseHasQueryCommand extends QueryCommands {
 
     @Override
     public boolean apply(Update update) {
-        var messagetext = update.getCallbackQuery().getMessage().getText();
+        var messagetext = update.getCallbackQuery().getData();
         return messagetext.equals("CLOSE");
     }
     public void setSurveyOrEnd(Update update){

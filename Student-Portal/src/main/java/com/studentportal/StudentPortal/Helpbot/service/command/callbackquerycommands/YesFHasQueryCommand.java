@@ -42,7 +42,7 @@ public class YesFHasQueryCommand extends QueryCommands {
 
     @Override
     public boolean apply(Update update) {
-        var messagetext = update.getCallbackQuery().getMessage().getText();
+        var messagetext = update.getCallbackQuery().getData();
         return messagetext.equals("YESF");
     }
     public void closeBargain(Update update){

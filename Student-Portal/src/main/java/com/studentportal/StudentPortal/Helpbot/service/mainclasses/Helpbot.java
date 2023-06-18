@@ -121,6 +121,7 @@ public class Helpbot extends TelegramLongPollingBot {
 //        const_text= new Text();
         if (update.hasCallbackQuery()) {
             commandFactory.getCommand(update, (byte) 1).resolve(update);
+            return;
         }
         if (update.hasPreCheckoutQuery()) {
             PreCheckoutQuery preCheckoutQuery = update.getPreCheckoutQuery();
@@ -151,10 +152,11 @@ public class Helpbot extends TelegramLongPollingBot {
                     }
                 }
                 commandFactory.getCommand(update, (byte) 2).resolve(update);
-            }
+                return;            }
         }
         if (update.hasMessage()) {
             commandFactory.getCommand(update, (byte) 3).resolve(update);
+            return;
         }
     }
     public void set_main_menu(String chatId, Message message){

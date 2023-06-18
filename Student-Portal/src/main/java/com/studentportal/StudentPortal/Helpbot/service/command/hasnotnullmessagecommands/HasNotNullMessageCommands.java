@@ -118,8 +118,8 @@ public abstract class HasNotNullMessageCommands extends Commands implements BotH
         Customer customer = customerRepository.findById(message.getChatId()).get();
         customer.setAgreementsState(true);
         customer.setFileLink(file_url_list);
-        customer.setState(Quiz.PRICE.toString());
-        customerRepository.saveAll(file_url_list);
+//        customer.setState(Quiz.PRICE.toString());
+//        customerRepository.saveAll(file_url_list);
         customerRepository.save(customer);
     }
     public void set_photo_to_channel_and_return_link(Message message)throws IOException{

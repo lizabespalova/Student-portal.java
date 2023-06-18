@@ -35,7 +35,7 @@ public class HasCheckByRoomCommand extends HasNotNullMessageCommands{
                     throw new RuntimeException(e);
                 }
             }
-            if(user_sms.matches("^-?\\d+$")){
+            else if(user_sms.matches("^-?\\d+$" )/*&& roomsRepository.findById(getRoomNumb(message)).get().getStateInChat()!=1*/){
                 for(int i=0; i<roomsRepository.count(); i++){
                     if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChat().getId())&&roomsRepository.findById(i+1).get().getFollowing()==2){
                         String payload = roomsRepository.findById(i+1).get().getPayload();
@@ -55,7 +55,7 @@ public class HasCheckByRoomCommand extends HasNotNullMessageCommands{
     @Override
     public boolean apply(Update update) {
         Message message = update.getMessage();
-        return !roomsRepository.findById(getRoomNumb(message)).isEmpty();
+        return !roomsRepository.findById(getRoomNumb(message)).isEmpty()&&roomsRepository.findById(getRoomNumb(message)).get().getFollowing()==0||roomsRepository.findById(getRoomNumb(message)).get().getFollowing()==2;
     }
     public int getRoomNumb(Message message){
         int roomNumb = 0;
