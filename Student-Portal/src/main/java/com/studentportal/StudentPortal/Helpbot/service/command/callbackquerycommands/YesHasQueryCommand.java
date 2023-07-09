@@ -112,7 +112,7 @@ public class YesHasQueryCommand extends QueryCommands {
         }
         int finishPrice = customerActions.finish_price_for_customer(price);
         CreateInvoiceLink createInvoiceLink = new CreateInvoiceLink(Text.title, Text.formDescription, roomsRepository.findById(roomId).get().getPayload(), helpbot.getBotTokenPay(), "UAH",
-                List.of(new LabeledPrice("Вартість", finishPrice * 100)));
+         List.of(new LabeledPrice("Вартість", finishPrice * 100)));
         String invoiceLink = helpbot.execute(createInvoiceLink);
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(update.getCallbackQuery().getMessage().getChat().getId());

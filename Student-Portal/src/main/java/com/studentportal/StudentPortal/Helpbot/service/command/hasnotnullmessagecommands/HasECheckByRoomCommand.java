@@ -9,10 +9,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.io.IOException;
 @Component
-public class HasCheckByRoomCommand extends HasNotNullMessageCommands{
+public class HasECheckByRoomCommand extends HasNotNullMessageCommands{
     @Autowired
     private PurchaseRepository purchaseRepository;
-    public HasCheckByRoomCommand(Helpbot helpbot, CustomerRepository customerRepository, RoomsRepository roomsRepository) {
+    public HasECheckByRoomCommand(Helpbot helpbot, CustomerRepository customerRepository, RoomsRepository roomsRepository) {
         super(helpbot, customerRepository, roomsRepository);
     }
 
@@ -20,7 +20,7 @@ public class HasCheckByRoomCommand extends HasNotNullMessageCommands{
     public void resolve(Update update) {
         Message message = update.getMessage();
         String user_sms = message.getText();
-        if (roomsRepository.findById(getRoomNumb(message)).get().getStateInChat() != null) {
+//        if (roomsRepository.findById(getRoomNumb(message)).get().getStateInChat() != null) {
             if (roomsRepository.findById(getRoomNumb(message)).get().getStateInChat() == 0) {
                 try {
                     boolean check = check_customers_price(user_sms, message);
@@ -49,13 +49,17 @@ public class HasCheckByRoomCommand extends HasNotNullMessageCommands{
                 }
 
             }
-        }
+//        }
     }
 
     @Override
     public boolean apply(Update update) {
         Message message = update.getMessage();
-        return !roomsRepository.findById(getRoomNumb(message)).isEmpty()&&roomsRepository.findById(getRoomNumb(message)).get().getFollowing()==0||roomsRepository.findById(getRoomNumb(message)).get().getFollowing()==2;
+        if(getRoomNumb(message)==0){
+            return false;
+        } else if (roomsRepository.findById(getRoomNumb(message)).get().getStateInChat() == null) {
+            return false;
+        } else return !roomsRepository.findById(getRoomNumb(message)).isEmpty()&&roomsRepository.findById(getRoomNumb(message)).get().getFollowing()==0||roomsRepository.findById(getRoomNumb(message)).get().getFollowing()==2;
     }
     public int getRoomNumb(Message message){
         int roomNumb = 0;

@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,7 +87,10 @@ public abstract class QueryCommands extends Commands implements BotHasQueryComma
 
             } else {
                 try {
-                    FileReader fileReader = new FileReader("com/studentportal/StudentPortal/Helpbot/service/command/files/ThiefDataTableDownload");
+                    String projectPath = System.getProperty("user.dir");
+                    String relativePath = "Student-Portal/src/main/java/com/studentportal/StudentPortal/Helpbot/service/command/files/ThiefDataTable";
+                    String absolutePath = projectPath + File.separator + relativePath;
+                    FileReader fileReader = new FileReader(absolutePath, StandardCharsets.UTF_8);
                     BufferedReader br = new BufferedReader(fileReader);
                     String mess="";
                     for (int i = 0; i < state * 10; i++) {
@@ -134,15 +138,20 @@ public abstract class QueryCommands extends Commands implements BotHasQueryComma
         } else {
             state += 1;
             try {
-                FileReader fileReader = new FileReader("com/studentportal/StudentPortal/Helpbot/service/command/files/ThiefDataTableDownload");
+                String projectPath = System.getProperty("user.dir");
+                String relativePath = "Student-Portal/src/main/java/com/studentportal/StudentPortal/Helpbot/service/command/files/ThiefDataTable";
+                String absolutePath = projectPath + File.separator + relativePath;
+                FileReader fileReader = new FileReader(absolutePath, StandardCharsets.UTF_8);
                 BufferedReader br = new BufferedReader(fileReader);
                 String mess="";
-                for (int i = 0; i < (state + 1) * 10; i++) {
-                    if(i>=(state-1) * 10)
+                for (int i = 0; i < state * 10; i++) {
+                    if(i>= (state-1)* 10)
                         list += br.readLine();
                     else mess+=br.readLine();
                 }
-                if(list.equals("nullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnull")){
+                String checklist = list.replace("null", "");
+
+                if(checklist.isEmpty()/*list.equals("nullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnullnull")||list.equals("")*/){
 
                 }else {
                     CustomerActions customerActions = new CustomerActions(customerRepository);
