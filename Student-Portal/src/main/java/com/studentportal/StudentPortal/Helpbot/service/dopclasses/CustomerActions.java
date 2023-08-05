@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Component
 
 public class CustomerActions {
@@ -90,7 +93,6 @@ public class CustomerActions {
     }
     public StringBuilder get_customer_post_link(Update update, PostRepository postRepository){
         StringBuilder sb = new StringBuilder();
-        sb.append("Посилання на завдання:\n");
         sb.append(postRepository.findById(update.getCallbackQuery().getMessage().getMessageId()).get().getLink());/*customerRepository.findById(update.getCallbackQuery().getMessage().getChatId()).get().getPostLink()*/
         return sb;
     }
@@ -123,18 +125,46 @@ public class CustomerActions {
     public String getThiefList(String list){
         return setThiefList(list).toString();
     }
+    public StringBuilder setPerformersInformation(String userName, String userSurname, String post, String rating, double bargainsAmount){
+      String stars = "";
+      String halbestars = "";
+        double fractionalPart=0;
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(rating);
+        Pattern pattern1 = Pattern.compile("\\d+\\.\\d+");
+        Matcher matcher1 = pattern1.matcher(rating);
+        int extractedNumber=0;
+        double extractedNumber1 =0;
+        // Находим первое вхождение числа в строке
+        if (matcher.find()) {
+             extractedNumber = Integer.parseInt(matcher.group());
+        } if (matcher1.find()) {
+            extractedNumber1 = Double.parseDouble(matcher.group());
+            fractionalPart = extractedNumber % 1; // Получаем дробную часть числа
+        }
+        if(extractedNumber!=0){for(int i=0; i< extractedNumber; i++){
+            stars+=Text.star;
+        }}
+        if(extractedNumber1!=0){
+            if(fractionalPart<5){
+                halbestars+=Text.dunklestar;
+            }
+            else if(fractionalPart>=5){
+                halbestars+=Text.hellestar;
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Користувач: "+ userName+" "+userSurname);
+        sb.append("\n");
+        sb.append("Рейтинг:"+rating+stars+halbestars);
+        sb.append("\n");
+        sb.append("Кількість угод:"+bargainsAmount);
+        sb.append("\n");
+        sb.append("Завдання, яке вона/він готова/ий виконати:"+ "\n"+post);
+        sb.append("\n");
+        return sb;
+    }
+    public String getPerformersInformation(String userName, String userSurname, String post, String rating, double bargainsAmount){
+        return setPerformersInformation( userName,  userSurname,  post,  rating,  bargainsAmount).toString();
+    }
 }
-//        if(photo_url!=null){
-//            SendMessage sendMessage = new SendMessage();
-//            sendMessage.setParseMode("HTML");
-//            sendMessage.setText("<b><b>");
-        /*  InputMediaPhoto inputPhoto = new InputMediaPhoto();
-        SendPhoto message = new SendPhoto();
-        message.setPhoto(new InputMediaPhoto().setMedia(photo_url));*/
-        /*    SendDocument sendDocument = new SendDocument();
-            String urlDownload = "";
-            sendDocument.setDocument(new InputFile().setMedia(urlDownload));*/
-//        }
-//        if(file_url!=null){
-//
-//        }

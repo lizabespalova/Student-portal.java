@@ -2,11 +2,13 @@ package com.studentportal.StudentPortal.Helpbot.service.command.callbackquerycom
 
 import com.studentportal.StudentPortal.Helpbot.model.Customer;
 import com.studentportal.StudentPortal.Helpbot.model.CustomerRepository;
+import com.studentportal.StudentPortal.Helpbot.model.Rooms;
 import com.studentportal.StudentPortal.Helpbot.model.RoomsRepository;
 import com.studentportal.StudentPortal.Helpbot.service.command.Commands;
 import com.studentportal.StudentPortal.Helpbot.service.consts.Text;
 import com.studentportal.StudentPortal.Helpbot.service.dopclasses.CustomerActions;
 import com.studentportal.StudentPortal.Helpbot.service.mainclasses.Helpbot;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.ExportChatInviteLink;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;

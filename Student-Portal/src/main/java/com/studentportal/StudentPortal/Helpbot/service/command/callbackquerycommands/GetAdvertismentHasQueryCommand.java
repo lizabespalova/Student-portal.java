@@ -94,11 +94,11 @@ public class GetAdvertismentHasQueryCommand extends QueryCommands {
             }if(performerRepository.findById(user.getId()).get().getSurname()!=null){
                 userSurname = performerRepository.findById(user.getId()).get().getSurname();
             }
-            sendMessage.setText("Користувач " + userName + " " +  userSurname + ", з рейтингом: " + performerRepository.findById(user.getId()).get().getRating() + " та кількістю угод: " + performerRepository.findById(user.getId()).get().getBargain_amount() + ", готовий/а взятися за ваше завдання" + "\n" + post);
+            String performersInfo = customerActions.getPerformersInformation(userName,userSurname,post,performerRepository.findById(user.getId()).get().getRating(),performerRepository.findById(user.getId()).get().getBargain_amount());
+            sendMessage.setText(performersInfo);
+            //sendMessage.setText("Користувач " + userName + " " +  userSurname + ", з рейтингом: " + performerRepository.findById(user.getId()).get().getRating() + " та кількістю угод: " + performerRepository.findById(user.getId()).get().getBargain_amount() + ", готовий/а взятися за ваше завдання" + "\n" + post);
             InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
             List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
-
-
 
             List<InlineKeyboardButton> row_inline=new ArrayList<>();
             var agree_Button = new InlineKeyboardButton();

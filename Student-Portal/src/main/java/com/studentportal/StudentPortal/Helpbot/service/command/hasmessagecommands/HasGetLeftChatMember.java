@@ -37,7 +37,7 @@ public class HasGetLeftChatMember extends HasMessageCommands{
         }else if(payLoad!=null&&purchaseRepository.findById(payLoad).get().isFlag()){
             for(int i=0; i<roomsRepository.count();i++){
                 if(roomsRepository.findById(i+1).get().getRoomID().equals(message.getChat().getId())){
-                    if(roomsRepository.findById(i+1).get().getFollowing()==0)
+                    if(roomsRepository.findById(i+1).get().getFollowing()==1)
                         setWarningRoguery(update);
                     break;
                 }

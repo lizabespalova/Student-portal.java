@@ -19,6 +19,7 @@ public class HasCleaningCommand extends HasNotNullMessageCommands{
     public void resolve(Update update) {
         try {
             cleanRoom(update,true);
+            generateNewLink( update);
         } catch (IOException e) {throw new RuntimeException(e);}
     }
 

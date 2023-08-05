@@ -18,45 +18,7 @@ public class YesSureHasQueryCommand extends QueryCommands {
 
     @Override
     public void resolve(Update update) {
-        var chatId = update.getCallbackQuery().getMessage().getChatId();
-        long customerID=0;
-        long performerID=0;
-        for(int i=0; i<roomsRepository.count();i++){
-            if(roomsRepository.findById(i+1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChat().getId())){
-                customerID = roomsRepository.findById(i+1).get().getCustomerID();
-                performerID = roomsRepository.findById(i+1).get().getPerformerID();
-            }
-        }
-
-        try {
-            //Генерувати нове посилання на кімнату
-            deleteMember(update.getCallbackQuery().getMessage().getChat().getId(), customerID);
-            deleteMember(update.getCallbackQuery().getMessage().getChat().getId(), performerID);
-            for(int i=0; i<roomsRepository.count();i++){
-                String inviteLink = "";
-                if(roomsRepository.findById(i+1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChat().getId())){
-                    String newChatLink = "";
-                    long chanels = roomsRepository.findById(i+1).get().getRoomID();
-                    ExportChatInviteLink exportChatInviteLink = new ExportChatInviteLink();
-                    exportChatInviteLink.setChatId(chanels);
-                    try {
-                        // Send the message
-                        newChatLink = helpbot.execute(exportChatInviteLink);
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                    Rooms rooms = roomsRepository.findById(i+1).get();
-                    rooms.setChatLink(newChatLink);
-                    rooms.setIsFree(true);
-                    rooms.setStateInChat(0);
-                    rooms.setFollowing(0);
-                    roomsRepository.save(rooms);
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        generateNewLink(update);
     }
 
     @Override

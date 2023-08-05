@@ -99,16 +99,15 @@ public class Helpbot extends TelegramLongPollingBot {
     }
 
 
-
     public Helpbot(HelpbotConfig helpbotConfig) {
         config = helpbotConfig;
         List<BotCommand> listofCommands = new ArrayList<>();
         text = ("Меню");
         listofCommands.add(new BotCommand("/start", text));
-        text = EmojiParser.parseToUnicode(":swan:"+" "+"Оберіть свій статус");
+        text = EmojiParser.parseToUnicode(":swan:" + " " + "Оберіть свій статус");
         listofCommands.add(new BotCommand("/status", text));
-        text = EmojiParser.parseToUnicode(":dove:"+" "+"Допомога");
-        listofCommands.add(new BotCommand("/help",text));
+        text = EmojiParser.parseToUnicode(":dove:" + " " + "Допомога");
+        listofCommands.add(new BotCommand("/help", text));
         try {
             this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException e) {
@@ -163,14 +162,16 @@ public class Helpbot extends TelegramLongPollingBot {
                     }
                 }
                 commandFactory.getCommand(update, (byte) 2).resolve(update);
-                return;            }
+                return;
+            }
         }
         if (update.hasMessage()) {
             commandFactory.getCommand(update, (byte) 3).resolve(update);
             return;
         }
     }
-    public void set_main_menu(String chatId, Message message){
+
+    public void set_main_menu(String chatId, Message message) {
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
         main_menu_sms.setText(EmojiParser.parseToUnicode("Оберіть дію:" + ":blush:"));
@@ -181,7 +182,7 @@ public class Helpbot extends TelegramLongPollingBot {
         KeyboardRow row1 = new KeyboardRow();
         row1.add(Text.thiefText);
         KeyboardRow row2 = new KeyboardRow();
-        row2.add( EmojiParser.parseToUnicode(Text.performerRegister));
+        row2.add(EmojiParser.parseToUnicode(Text.performerRegister));
         menu.add(row);
         menu.add(row1);
         menu.add(row2);
@@ -190,14 +191,14 @@ public class Helpbot extends TelegramLongPollingBot {
         keyboard.setOneTimeKeyboard(false);
         keyboard.setSelective(true);
         main_menu_sms.setReplyMarkup(keyboard);
-        if(!customerRepository.findById(message.getChatId()).isEmpty()) {
+        if (!customerRepository.findById(message.getChatId()).isEmpty()) {
             Customer customer = customerRepository.findById(message.getChatId()).get();
             customer.setAgreementsState(true);
             customer.setState(Quiz.MAINMENU.toString());
             customer.setPriceFlag(0);
             customer.setCheck_state(true);
             customerRepository.save(customer);
-        }else{
+        } else {
             Customer customer = new Customer();
             customer.setChatID(message.getChatId());
             customer.setSurname(message.getFrom().getLastName());
@@ -211,18 +212,19 @@ public class Helpbot extends TelegramLongPollingBot {
 
         try {
             // Send the message
-           execute(main_menu_sms);
+            execute(main_menu_sms);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
-    public void set_menu_Reply(String chatId){
+
+    public void set_menu_Reply(String chatId) {
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
         text = EmojiParser.parseToUnicode("Привіт, друже" + ":wave:");
         main_menu_sms.setText(text);
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
-        text = EmojiParser.parseToUnicode("Правила користування ботом"+":clipboard:");
+        text = EmojiParser.parseToUnicode("Правила користування ботом" + ":clipboard:");
         List<KeyboardRow> menu = new ArrayList<>();
         KeyboardRow row = new KeyboardRow();
         row.add(text);
@@ -239,16 +241,17 @@ public class Helpbot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    public void set_menu_Inline(String chatId){
+
+    public void set_menu_Inline(String chatId) {
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
         main_menu_sms.setText("Обери дію:");
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
-        List<InlineKeyboardButton> row_inline=new ArrayList<>();
+        List<InlineKeyboardButton> row_inline = new ArrayList<>();
         var customer_Button = new InlineKeyboardButton();
         text = EmojiParser.parseToUnicode("Я замовник" + ":woman_office_worker:");
-        customer_Button.setText( text );
+        customer_Button.setText(text);
         customer_Button.setCallbackData(Buttons.CUSTOMER.toString());
         var permormer_Button = new InlineKeyboardButton();
         text = EmojiParser.parseToUnicode("Я виконавець" + ":woman_technologist:");
@@ -259,16 +262,17 @@ public class Helpbot extends TelegramLongPollingBot {
         rows_inline.add(row_inline);
         inline_keybord.setKeyboard(rows_inline);
         main_menu_sms.setReplyMarkup(inline_keybord);
-        try{
+        try {
             execute(main_menu_sms);
-        }catch(TelegramApiException e){
+        } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
-    public void help_button(String chatId){
+
+    public void help_button(String chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        text =  EmojiParser.parseToUnicode("Якщо виникли питання звертайтесь до адміністратора:"+":rose:"+ "\n\n\n" +"@lizabespalova");
+        text = EmojiParser.parseToUnicode("Якщо виникли питання звертайтесь до адміністратора:" + ":rose:" + "\n\n\n" + "@lizabespalova");
         sendMessage.setText(text);
         try {
             // Send the message
@@ -278,10 +282,11 @@ public class Helpbot extends TelegramLongPollingBot {
         }
 
     }
-    public void rules_buttons(String chatId){
+
+    public void rules_buttons(String chatId) {
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(chatId);
-        text = EmojiParser.parseToUnicode("Обери тип інформації, з яким ти хочешь ознайомитись:"+":book:");
+        text = EmojiParser.parseToUnicode("Обери тип інформації, з яким ти хочешь ознайомитись:" + ":book:");
         main_menu_sms.setText(text);
         InlineKeyboardMarkup inline_keybord = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows_inline = new ArrayList<>();
@@ -311,9 +316,9 @@ public class Helpbot extends TelegramLongPollingBot {
         rows_inline.add(row_inline3);
         inline_keybord.setKeyboard(rows_inline);
         main_menu_sms.setReplyMarkup(inline_keybord);
-        try{
+        try {
             execute(main_menu_sms);
-        }catch(TelegramApiException e){
+        } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }

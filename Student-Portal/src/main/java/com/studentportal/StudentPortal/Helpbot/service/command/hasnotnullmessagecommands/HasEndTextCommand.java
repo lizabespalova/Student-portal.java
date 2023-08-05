@@ -24,6 +24,8 @@ public class HasEndTextCommand extends HasNotNullMessageCommands {
         customer.setAgreementsState(true);
         customer.setCheck_state(true);
         customer.setPriceFlag(1);
+        customer.setPhotoLink(null);
+        customer.setFileLink(null);
         customerRepository.save(customer);
     }
 

@@ -189,9 +189,9 @@ public abstract class HasNotNullMessageCommands extends Commands implements BotH
     public void cleanRoom(Update update, boolean deletePost) throws IOException {
         long postID = 0;
         long chanels = 0;
-
-        for(int i=0; i<roomsRepository.count();i++){
-            if (update.getMessage().getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
+        Long id = update.getMessage().getChat().getId();
+        for(int i = 0; i<roomsRepository.count(); i++){
+            if (id.equals(roomsRepository.findById(i + 1).get().getRoomID())) {
                 postID = roomsRepository.findById(i+1).get().getPostId();
                 chanels = roomsRepository.findById(i+1).get().getRoomID();
                 break;
@@ -211,12 +211,16 @@ public abstract class HasNotNullMessageCommands extends Commands implements BotH
         while ((inputLine = br.readLine()) != null) {
             sb.append(inputLine);
         }
-
         for(int i=0; i<roomsRepository.count();i++){
-            if (update.getMessage().getChat().getId().equals(roomsRepository.findById(i + 1).get().getRoomID())) {
+            if (id.equals(roomsRepository.findById(i + 1).get().getRoomID())) {
                 Rooms rooms =roomsRepository.findById(i+1).get();
                 rooms.setIsFree(true);
                 rooms.setPayload(null);
+                rooms.setCustomerID(null);
+                rooms.setDate(null);
+                rooms.setPerformerID(null);
+                rooms.setPostId(null);
+                rooms.setPrice(null);
                 roomsRepository.save(rooms);
                 break;
             }
@@ -695,7 +699,7 @@ public abstract class HasNotNullMessageCommands extends Commands implements BotH
                     }else{
                         float averageEstimate = Float.parseFloat(performerRepository.findById(performerID).get().getRating());
                         averageEstimate+=Float.parseFloat(message.getText());
-                        averageEstimate/=performerRepository.findById(performerID).get().getBargain_amount()+1;
+                        averageEstimate/=2;
                         performer.setRating(String.valueOf(averageEstimate));
                     }
                     performerRepository.save(performer);

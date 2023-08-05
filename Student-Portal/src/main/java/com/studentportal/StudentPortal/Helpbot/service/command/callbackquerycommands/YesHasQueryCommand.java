@@ -1,5 +1,6 @@
 package com.studentportal.StudentPortal.Helpbot.service.command.callbackquerycommands;
 
+import com.liqpay.LiqPay;
 import com.studentportal.StudentPortal.Helpbot.model.*;
 import com.studentportal.StudentPortal.Helpbot.service.consts.Text;
 import com.studentportal.StudentPortal.Helpbot.service.dopclasses.CustomerActions;
@@ -15,9 +16,14 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.*;
+
+import static com.liqpay.LiqPayUtil.base64_encode;
+import static com.liqpay.LiqPayUtil.sha1;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
 public class YesHasQueryCommand extends QueryCommands {
     @Autowired
@@ -102,18 +108,22 @@ public class YesHasQueryCommand extends QueryCommands {
             }
         }
         for(int j=0; j<roomsRepository.count();j++){
-            if(roomsRepository.findById(j+1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChatId())){
-                price = roomsRepository.findById(j + 1).get().getPrice();
-                Rooms rooms = roomsRepository.findById(j + 1).get();
+            Rooms rooms1 = roomsRepository.findById(j + 1).get();
+            if(rooms1.getRoomID().equals(update.getCallbackQuery().getMessage().getChatId())){
+                price = rooms1.getPrice();
+                Rooms rooms = rooms1;
                 rooms.setPayload(payLoad);
                 roomsRepository.save(rooms);
                 break;
             }
         }
         int finishPrice = customerActions.finish_price_for_customer(price);
-        CreateInvoiceLink createInvoiceLink = new CreateInvoiceLink(Text.title, Text.formDescription, roomsRepository.findById(roomId).get().getPayload(), helpbot.getBotTokenPay(), "UAH",
+        Rooms room = roomsRepository.findById(roomId).get();
+        CreateInvoiceLink createInvoiceLink = new CreateInvoiceLink(Text.title, Text.formDescription, room.getPayload(), helpbot.getBotTokenPay(), "UAH",
          List.of(new LabeledPrice("Вартість", finishPrice * 100)));
         String invoiceLink = helpbot.execute(createInvoiceLink);
+        //change
+
         SendMessage main_menu_sms = new SendMessage();
         main_menu_sms.setChatId(update.getCallbackQuery().getMessage().getChat().getId());
         main_menu_sms.setText(Text.invocieDescription+finishPrice);
@@ -123,7 +133,7 @@ public class YesHasQueryCommand extends QueryCommands {
         var payButton = new InlineKeyboardButton();
         payButton.setText(Text.pay);
         payButton.setCallbackData("Сплатити");
-        payButton.setUrl(invoiceLink);
+        payButton.setUrl(invoiceLink/*"https://"+paymentLink*/);
         row_inline.add(payButton);
         rows_inline.add(row_inline);
         inline_keybord.setKeyboard(rows_inline);
@@ -140,6 +150,34 @@ public class YesHasQueryCommand extends QueryCommands {
             e.printStackTrace();
         }
     }
+    private static String convertToJsonString(Object object) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+    private static String getSha256Signature(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
     @Override
     public boolean apply(Update update) {
         var messagetext = update.getCallbackQuery().getData();

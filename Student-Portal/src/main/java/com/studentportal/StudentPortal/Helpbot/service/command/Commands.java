@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.methods.groupadministration.ExportChat
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -203,6 +204,9 @@ public abstract class Commands {
                     while ((inputLine = br.readLine()) != null) {
                         sb.append(inputLine);
                     }
+                    Rooms rooms = roomsRepository.findById(i+1).get();
+                    rooms.setStateInChat(null);
+                    roomsRepository.save(rooms);
                     return false;
                 }
             }
@@ -262,7 +266,7 @@ public abstract class Commands {
             }
         }
         SendMessage sendMessage1 = new SendMessage();
-        sendMessage1.setText("Користувач, надішліть, будь ласка, вашу картку");
+        sendMessage1.setText("Виконавець, надішліть, будь ласка, вашу картку");
         sendMessage1.setChatId(roomID);
         try {
             // Send the message
@@ -299,7 +303,7 @@ public abstract class Commands {
         }
     }
     public void sms_to_performer(int user_price, Message message) throws IOException {
-        if (user_price < 10 || user_price > 10000) {
+        if (user_price < 50 || user_price > 10000) {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setText(Text.littleMoney);
             sendMessage.setChatId(message.getChat().getId());
@@ -507,4 +511,46 @@ public abstract class Commands {
             e.printStackTrace();
         }
     }
+    public void generateNewLink(Update update){
+        var chatId = update.getCallbackQuery().getMessage().getChatId();
+        long customerID=0;
+        long performerID=0;
+        for(int i=0; i<roomsRepository.count();i++){
+            if(roomsRepository.findById(i+1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChat().getId())){
+                customerID = roomsRepository.findById(i+1).get().getCustomerID();
+                performerID = roomsRepository.findById(i+1).get().getPerformerID();
+            }
+        }
+
+        try {
+            //Генерувати нове посилання на кімнату
+            deleteMember(update.getCallbackQuery().getMessage().getChat().getId(), customerID);
+            deleteMember(update.getCallbackQuery().getMessage().getChat().getId(), performerID);
+            for(int i=0; i<roomsRepository.count();i++){
+                String inviteLink = "";
+                if(roomsRepository.findById(i+1).get().getRoomID().equals(update.getCallbackQuery().getMessage().getChat().getId())){
+                    String newChatLink = "";
+                    long chanels = roomsRepository.findById(i+1).get().getRoomID();
+                    ExportChatInviteLink exportChatInviteLink = new ExportChatInviteLink();
+                    exportChatInviteLink.setChatId(chanels);
+                    try {
+                        // Send the message
+                        newChatLink = helpbot.execute(exportChatInviteLink);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    Rooms rooms = roomsRepository.findById(i+1).get();
+                    rooms.setChatLink(newChatLink);
+                    rooms.setIsFree(true);
+                    rooms.setStateInChat(0);
+                    rooms.setFollowing(0);
+                    roomsRepository.save(rooms);
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

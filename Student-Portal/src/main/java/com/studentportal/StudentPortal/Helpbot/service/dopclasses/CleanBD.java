@@ -30,13 +30,13 @@ public class CleanBD <T, K extends CrudRepository>{
               format.applyPattern("dd.MM.yyyy");
               String getDate = post.getDate();;
               Date oldDate = null;
-              try {
-                  oldDate = format.parse(getDate);
-              } catch (ParseException e) {
-                  throw new RuntimeException(e);
-              }
-
-              long delta = (today.getTime()-oldDate.getTime()) / 86400000;
+              if(getDate!=null) {
+                  try {
+                      oldDate = format.parse(getDate);
+                  } catch (ParseException e) {
+                      throw new RuntimeException(e);
+                  }
+            long delta = (today.getTime()-oldDate.getTime()) / 86400000;
               if(delta > 30){
                   int postID = post.getMessageID();
                   Post postToDelete = (Post) repository.findById(postID).orElseThrow();
@@ -44,6 +44,7 @@ public class CleanBD <T, K extends CrudRepository>{
               }
           }
       }
+   }
       else if(table instanceof Purchase) {
           List<Purchase> list = new ArrayList<Purchase>();
           repository.findAll().forEach(item -> list.add((Purchase) item));
@@ -53,17 +54,20 @@ public class CleanBD <T, K extends CrudRepository>{
               format.applyPattern("dd.MM.yyyy");
               String getDate = purchase.getDate();;
               Date oldDate = null;
-              try {
-                  oldDate = format.parse(getDate);
-              } catch (ParseException e) {
-                  throw new RuntimeException(e);
-              }
+              if(getDate!=null) {
+                  try {
+                      oldDate = format.parse(getDate);
+                  } catch (ParseException e) {
+                      throw new RuntimeException(e);
+                  }
+
               long delta = (today.getTime() - oldDate.getTime()) / 86400000;
               if (delta > 30) {
                   String payloadID = purchase.getPayloadID();
                   Purchase postToDelete = (Purchase) repository.findById(payloadID).orElseThrow();
                   repository.delete(postToDelete);
               }
+            }
           }
       }
   }
