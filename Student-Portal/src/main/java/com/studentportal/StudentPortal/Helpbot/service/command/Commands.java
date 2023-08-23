@@ -134,7 +134,6 @@ public abstract class Commands {
             e.printStackTrace();
         }
     }
-
      public void save(Message message, String state){
         if(!customerRepository.findById(message.getChatId()).isEmpty()) {
             Customer customer = customerRepository.findById(message.getChatId()).get();
