@@ -48,7 +48,7 @@ public class CloseHasQueryCommand extends QueryCommands {
         else{
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(update.getCallbackQuery().getMessage().getChat().getId());
-            sendMessage.setText("Користувач, оцініть , будь ласка виконавця за шкалою від 0 до 5. Надішліть у чат цифру. Виконавець побачить вашу оцінку, це не анонімно, але оцінюйте чесно.");
+            sendMessage.setText("Насамперед, ПОПЕРЕДЖАЄМО, щоб ви ЗБЕРЕГЛИ собі ваш розв'язок на завдання!!! Бот не несе відповідальність за те, що вооне пропаде післі угоди!!! Користувач, оцініть , будь ласка виконавця за шкалою від 0 до 5. Надішліть у чат цифру. Виконавець побачить вашу оцінку, це не анонімно, але оцінюйте чесно.");
             Rooms rooms = roomsRepository.findById(roomID).get();
             rooms.setFollowing(1);
             roomsRepository.save(rooms);

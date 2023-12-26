@@ -54,7 +54,7 @@ public class Text {
     public static final String byeTxt =EmojiParser.parseToUnicode(" Оцінку враховано. Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slight_smile: ");
     public static final String myCard = EmojiParser.parseToUnicode("Я перевірив, це моя картка"+":ok_hand:");
     public static final String areYouSure = EmojiParser.parseToUnicode("Перевірте ще раз уважно номер своєї картки. Не гнівайтеся за довге <що?де?коли?>,це для вашої же безпеки"+":woman_teacher:");
-    public static final String byeTxtPerformer =EmojiParser.parseToUnicode("Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slight_smile: ");
+    public static final String byeTxtPerformer = EmojiParser.parseToUnicode("Дякуємо за угоду, ми видалили вас, тому що вона закінчена. Сподіваюсь, що вам сподобалось"+":slight_smile: ");
     public static final String cleaning = ("17032004adminLiza");
     public static final String thiefMenu = ("Оберіть, будь ласка, дію:");
     public static final String thiefList = ("Список");

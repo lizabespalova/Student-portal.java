@@ -1,6 +1,5 @@
 package com.studentportal.StudentPortal.Helpbot.service.command.callbackquerycommands;
 
-import com.liqpay.LiqPay;
 import com.studentportal.StudentPortal.Helpbot.model.*;
 import com.studentportal.StudentPortal.Helpbot.service.consts.Text;
 import com.studentportal.StudentPortal.Helpbot.service.dopclasses.CustomerActions;
@@ -20,8 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
 
-import static com.liqpay.LiqPayUtil.base64_encode;
-import static com.liqpay.LiqPayUtil.sha1;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 @Component
